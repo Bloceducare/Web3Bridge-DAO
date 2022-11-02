@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 
 import { IERC20 } from "../interfaces/IERC20.sol";
+import {IERC721} from "../interfaces/IERC721.sol";
 
 contract DAOtoken is IERC20{
 
@@ -22,7 +23,7 @@ contract DAOtoken is IERC20{
     address nftcetificate;
 
     modifier onlyOwner(){
-        require(msg.sender == _owner);
+        require(msg.sender == _owner, "not owner");
         _;
     }
 
@@ -138,13 +139,17 @@ contract DAOtoken is IERC20{
 
     //the mint tokens to an address should have certificate nft before minting
     function _mint() internal virtual {
-        require(IERC20(nftcetificate).balanceOf(msg.sender) >= 1, "not a member");
-        uint _amount = _mintAmountperPerson * 1e18; 
+        require(IERC721(nftcetificate).balanceOf(msg.sender) >= 1, "not a member");
+        uint _amount = _mintAmountperPerson * 1e18;
         _totalSupply += _amount;
         _balances[msg.sender] += _amount;
         emit Transfer(address(0), msg.sender, _amount);
 
         _afterTokenTransfer(address(0), msg.sender, _amount);
+    }
+
+    function mint() public {
+        _mint();
     }
 
     function _burn(address account, uint256 amount) internal virtual {
