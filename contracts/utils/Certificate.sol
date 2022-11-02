@@ -3,5 +3,7 @@ pragma solidity ^0.8.0;
 
 
 contract Certificate {
-    
+    constructor(string memory _name, string memory _symbol) {
+        
+    }
 }
