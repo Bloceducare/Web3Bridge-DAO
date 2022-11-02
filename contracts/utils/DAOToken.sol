@@ -5,7 +5,25 @@ pragma solidity ^0.8.0;
 import { IERC20 } from "../interfaces/IERC20.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
 
+/// @title Web3DAO-Token Implmentartion Contract 
+/// @notice this contract will be called anytime a session is started and last thoroughout the duration of that session.
+/// @author team Web3Bridge 
+
 contract DAOtoken is IERC20{
+
+    /**
+     * ===================================================
+     * ----------------- EVENTS --------------------------
+     * ===================================================
+     */
+
+
+
+        /**
+     * ===================================================
+     * ----------------- STATE VARIBLE -------------------
+     * ===================================================
+     */
 
     mapping(address => uint256) private  _balances;
 
@@ -22,10 +40,29 @@ contract DAOtoken is IERC20{
 
     address nftcetificate;
 
+        /**
+     * ===================================================
+     * ----------------- ERROR ---------------------------
+     * ===================================================
+     */
+
+        /**
+     * ===================================================
+     * ----------------- MODIFIERS -----------------------
+     * ===================================================
+     */
+
     modifier onlyOwner(){
         require(msg.sender == _owner, "not owner");
         _;
     }
+
+
+    /**
+     * ===================================================
+     * ----------------- CONSTRUCTOR --------------------
+     * ===================================================
+     */
 
     constructor(){
         _owner = msg.sender;
