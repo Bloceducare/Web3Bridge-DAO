@@ -17,7 +17,8 @@ contract DAOtoken is IERC20{
      * ===================================================
      */
 
-
+    event Transfer (indexed address, indexed address, indexed uint256);
+    event Approval (indexed address, indexed address, indexed uint256);
 
         /**
      * ===================================================
@@ -40,11 +41,6 @@ contract DAOtoken is IERC20{
 
     address nftcetificate;
 
-        /**
-     * ===================================================
-     * ----------------- ERROR ---------------------------
-     * ===================================================
-     */
 
         /**
      * ===================================================
@@ -186,6 +182,11 @@ contract DAOtoken is IERC20{
     }
 
     function mint() public {
+        
+        uint256 accountBalance = _balances[msg.sender];
+        require(accountBalance <= 0, "old tokens burn needed");
+        _burn(msg.sender, accountBalance);
+
         _mint();
     }
 
