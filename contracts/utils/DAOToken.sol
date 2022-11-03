@@ -30,7 +30,7 @@ contract DAOtoken is IERC20{
 
     address private _owner;
 
-    address nftcetificate;
+    IERC20 nftcetificate;
 
     bool private _enableMinting; 
 
@@ -53,8 +53,9 @@ contract DAOtoken is IERC20{
      * ===================================================
      */
 
-    constructor(){
+    constructor(address _nftaddress){
         _owner = msg.sender;
+        nftcetificate = IERC20(_nftaddress);
     }
    
 
@@ -175,7 +176,7 @@ contract DAOtoken is IERC20{
 
     //the mint tokens to an address should have certificate nft before minting
     function _mint() internal virtual {
-        require(IERC721(nftcetificate).balanceOf(msg.sender) >= 1, "not a member");
+        require(nftcetificate.balanceOf(msg.sender) >= 1, "not a member");
         uint _amount = _mintAmountperPerson * 1e18;
         _totalSupply += _amount;
         _balances[msg.sender] += _amount;

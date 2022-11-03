@@ -5,24 +5,43 @@ import { ethers } from "hardhat";
 import { utils } from "ethers";
 
 describe("DAOtoken", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
+
   async function deploysDaotoken() {
 
-    // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, add3] = await ethers.getSigners();
 
-    const DAOtoken = await ethers.getContractFactory("DAOtoken");
-    const daotoken = await DAOtoken.deploy();
+    const Nfttoken = await ethers.getContractFactory("faketoken");
+    const nfttoken = await Nfttoken.deploy();
 
-    return {owner, otherAccount, add3, daotoken};
+    const DAOtoken = await ethers.getContractFactory("DAOtoken");
+    const daotoken = await DAOtoken.deploy(nfttoken.address);
+
+    return {owner, otherAccount, add3, daotoken, nfttoken};
   }
+
+  //this test is not completed : waiting for the nft certificate and its onlyowner than has be used to test , need to test with others
 
   describe("Mint tokens to members", function () {
     it("Should Mint tokens when ........", async function () {
-        const {owner, otherAccount, add3, daotoken} = await loadFixture(deploysDaotoken);
+        const {owner,  daotoken, nfttoken} = await loadFixture(deploysDaotoken);
+        let amount1 = ethers.utils.parseEther("1");
+        await nfttoken.mint(amount1)
+        let amount = ethers.utils.parseEther("20");
+        await daotoken.setMintAmountPerPerson(20);
+        await daotoken.enableMinting(true);
+        await daotoken.mint();
+        expect(await daotoken.balanceOf(owner.address)).to.equal(amount);
     });
+
+    it("revert when minting is off", async function () {
+      const {daotoken, nfttoken} = await loadFixture(deploysDaotoken);
+      let amount1 = ethers.utils.parseEther("1");
+      await nfttoken.mint(amount1)
+      let amount = ethers.utils.parseEther("20");
+      await daotoken.setMintAmountPerPerson(20);
+     // await daotoken.enableMinting(true);
+      await expect (daotoken.mint()).to.revertedWith("session has not ended");
+  });
     
   });
 });
