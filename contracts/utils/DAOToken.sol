@@ -7,18 +7,9 @@ import {IERC721} from "../interfaces/IERC721.sol";
 
 /// @title Web3DAO-Token Implmentartion Contract 
 /// @notice this contract will be called anytime a session is started and last thoroughout the duration of that session.
-/// @author team Web3Bridge 
+/// @author team Web3Bridge  💯
 
 contract DAOtoken is IERC20{
-
-    /**
-     * ===================================================
-     * ----------------- EVENTS --------------------------
-     * ===================================================
-     */
-
-    event Transfer (indexed address, indexed address, indexed uint256);
-    event Approval (indexed address, indexed address, indexed uint256);
 
         /**
      * ===================================================
@@ -40,6 +31,8 @@ contract DAOtoken is IERC20{
     address private _owner;
 
     address nftcetificate;
+
+    bool private _enableMinting; 
 
 
         /**
@@ -104,6 +97,16 @@ contract DAOtoken is IERC20{
     //sets the owner to a new one 
     function setNewOwner(address newOwner) public onlyOwner{
         _owner = newOwner;
+    }
+
+    // get state oof minting
+    function stateOfMinting() external view returns(bool){
+        return _enableMinting;
+    }
+
+    // called by owner to enablr minting every session 🤑
+    function enableMinting(bool status) external onlyOwner{
+        _enableMinting = status;
     }
 
     function transfer(address to, uint256 amount) public override returns (bool) {
@@ -182,7 +185,7 @@ contract DAOtoken is IERC20{
     }
 
     function mint() public {
-        
+        require(_enableMinting, "session has not ended");
         uint256 accountBalance = _balances[msg.sender];
         require(accountBalance <= 0, "old tokens burn needed");
         _burn(msg.sender, accountBalance);
