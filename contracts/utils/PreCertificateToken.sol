@@ -19,6 +19,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     // Custom errors
     error notAdmin(string);
+    error notCompleted(string);
 
     /*   Events */
     
@@ -85,6 +86,9 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         StudentDetails memory sd = studentDetails[msg.sender];
         if(sd.amountPaid == cohortFee){
             return true;
+        }
+        else{
+            revert notCompleted("Payment not completed");
         }
     }
 
