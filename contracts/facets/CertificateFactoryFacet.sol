@@ -29,4 +29,10 @@ contract CertificateFactoryFacet {
 
         emit CertificateDeployed(name, symbol, address(new_certificate), block.timestamp);
     }
+
+    /// @notice function would recieve the $1500 from the user
+    /// @dev this function would take the tokken from the user then send the percentile to the approparate destinantion 
+    function pay() external {
+        
+    }
 }
