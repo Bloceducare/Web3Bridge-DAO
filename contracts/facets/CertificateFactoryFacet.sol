@@ -33,6 +33,12 @@ contract CertificateFactoryFacet {
     /// @notice function would recieve the $1500 from the user
     /// @dev this function would take the tokken from the user then send the percentile to the approparate destinantion 
     function pay() external {
+
+    }
+
+    /// @notice this is a view function that woould be used to see if a user has pay their $1500
+    /// @return true if the user has paid else true
+    function hasPaid() external {
         
     }
 }
