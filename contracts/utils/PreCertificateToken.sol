@@ -93,16 +93,18 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     function claimToken(bytes32 memory _merkleProof) public {
-        StudentDetails memory sd = studentDetails[msg.sender];
+        StudentDetails storage sd = studentDetails[msg.sender];
         bytes32 leaf = keccak256(msg.sender);
         if(MerkleProof.verify(_merkleProof, merkleRoot, leaf)){
             assert(checkCompleted());
             assert(!sd.claimed);
-            if(block.timestamp < elapsedTime){
+            if(sd.timeOfLastPayment < elapsedTime){
                 _mint(msg.sender, 2);
+                sd.tokenRecieved = 2;
             }
-            else if(block.timestamp > elapsedTime){
+            else if(sd.timeOfLastPayment > elapsedTime){
                 _mint(msg.sender, 1);
+                sd.tokenReceived = 1;
             }
         }
 
