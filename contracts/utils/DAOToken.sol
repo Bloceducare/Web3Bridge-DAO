@@ -35,7 +35,7 @@ contract DAOtoken is IERC20{
     bool private _enableMinting; 
 
 
-        /**
+    /**
      * ===================================================
      * ----------------- MODIFIERS -----------------------
      * ===================================================
@@ -95,7 +95,8 @@ contract DAOtoken is IERC20{
         return _owner;
     }
 
-    //sets the owner to a new one 
+    /// @notice sets the owner to a new one 
+    /// @dev NOTE this script must transfer ownership imedately after deployment
     function setNewOwner(address newOwner) public onlyOwner{
         _owner = newOwner;
     }
@@ -185,13 +186,21 @@ contract DAOtoken is IERC20{
         _afterTokenTransfer(address(0), msg.sender, _amount);
     }
 
-    function mint() public {
+    function mint() external {
         require(_enableMinting, "session has not ended");
         uint256 accountBalance = _balances[msg.sender];
         require(accountBalance <= 0, "old tokens burn needed");
         _burn(msg.sender, accountBalance);
 
         _mint();
+    }
+
+    /// @dev the diamond would be able to burn users token during voting
+    /// @notice this function would be used to burn DAO token from a percified user address 
+    /// @param _voter: this is the address that the burn would happen to 
+    /// @param _voting_power: this is the is the amount of power(token) this user is willing use for this vote
+    function burn(address _voter, uint256 _voting_power) external onlyOwner {
+        _burn(_voter, _voting_power);
     }
 
     function _burn(address account, uint256 amount) internal virtual {

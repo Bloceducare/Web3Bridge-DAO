@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {IHasPaid} from "../interfaces/IHasPaid.sol";
 
 pragma solidity ^0.8.4;
 
@@ -23,12 +24,15 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
         merkle_root = root;
     }
 
+    /// @notice this function would mint certificate to user if all condition is met
+    /// @dev this function would only mint if the address calling is whitelisted and has not minted before and has paid the $1500
     function mintCertificate(
         address to,
         string memory uri,
         bytes32[] memory proof
     ) public {
         require(!hasMinted[to], "Already minted certificate");
+        require(IHasPaid(owner()).hasPaid(address), "Has not paid");
 
         hasMinted[to] = true;
 
