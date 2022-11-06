@@ -24,8 +24,8 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
         merkle_root = root;
     }
 
-    /// @notice this function would mint certificate to user if all condition is met
-    /// @dev this function would only mint if the address calling is whitelisted and has not minted before and has paid the $1500
+    /// @notice this function would mint certificate to user if all conditions are met
+    /// @dev this function would only mint if the address calling it is whitelisted and has not minted before and has paid the $1500
     function mintCertificate(
         address to,
         string memory uri,
