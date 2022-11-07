@@ -31,7 +31,7 @@ contract Vault5 {
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
     }
- 
+
     function withdrawShare (address _addr) external {
         earlyPayment storage EP = EarlyPayers[msg.sender];
         assert(EP.withdrawn == false);
@@ -43,13 +43,11 @@ contract Vault5 {
     }
 
     function individualShare () private view returns (uint216 share){
-       share =  amountDepositedForSharing / numberOfPaidUsers;
-    } 
+        share = amountDepositedForSharing / numberOfPaidUsers;
+    }
 
     function openVault () public {
         assert(msg.sender == owner);
         withdrawTimeReached = true;
     }
-
-    
 }
