@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 struct Proposal {
+    uint256 id;
     string name;
     uint256 endTime;
     uint256 voteCount;
@@ -17,9 +18,11 @@ struct Voter {
 }
 
 struct States {
+    address owner;
     mapping(uint256 => Proposal) proposals;
     mapping(address => mapping(uint256 => bool)) voted;
     mapping(uint256 => Voter) proposalVoters;
     uint256 ID;
     uint256 proposalCount;
+    address daoToken;
 }
