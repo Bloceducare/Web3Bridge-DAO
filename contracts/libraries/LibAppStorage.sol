@@ -8,7 +8,7 @@ struct Proposal {
     uint256 voteCount;
     uint256 support;
     uint256 against;
-    bool active;
+    bool cancelled;
 }
 
 struct Voter {

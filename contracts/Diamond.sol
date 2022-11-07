@@ -15,7 +15,11 @@ import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 contract Diamond {
     States internal states;
 
-    constructor(address _contractOwner, address _diamondCutFacet) payable {
+    constructor(
+        address _contractOwner,
+        address _diamondCutFacet,
+        address _daoToken
+    ) payable {
         LibDiamond.setContractOwner(_contractOwner);
 
         // Add the diamondCut external function from the diamondCutFacet
@@ -26,6 +30,7 @@ contract Diamond {
         LibDiamond.diamondCut(cut, address(0), "");
 
         states.owner = _contractOwner;
+        states.daoToken = _daoToken;
     }
 
     // Find facet for function that is called and execute the
