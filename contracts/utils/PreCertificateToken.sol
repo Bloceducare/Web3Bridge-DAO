@@ -83,7 +83,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
     }
 
-    function checkCompleted() public returns(bool) {
+    function checkCompleted() public view returns(bool) {
         StudentDetails memory sd = studentDetails[msg.sender];
         if(sd.amountPaid == cohortFee){
             return true;
