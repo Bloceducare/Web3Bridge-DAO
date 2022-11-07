@@ -1,30 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
-import { IERC20 } from "../interfaces/IERC20.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
 
-/// @title Web3DAO-Token Implmentartion Contract 
+/// @title Web3DAO-Token Implmentartion Contract
 /// @notice this contract will be called anytime a session is started and last thoroughout the duration of that session.
 /// @author team Web3Bridge  💯
 
-contract DAOtoken is IERC20{
-
-        /**
+contract DAOtoken is IERC20 {
+    /**
      * ===================================================
      * ----------------- STATE VARIBLE -------------------
      * ===================================================
      */
 
-    mapping(address => uint256) private  _balances;
+    mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    uint256  _totalSupply;
+    uint256 _totalSupply;
 
-    string  private _name = "Web3bridge DAO TOKEN";
-    string  private _symbol = "WDT";
+    string private _name = "Web3bridge DAO TOKEN";
+    string private _symbol = "WDT";
 
     uint256 private _mintAmountperPerson = 20;
 
@@ -32,8 +30,7 @@ contract DAOtoken is IERC20{
 
     IERC20 nftcetificate;
 
-    bool private _enableMinting; 
-
+    bool private _enableMinting;
 
     /**
      * ===================================================
@@ -41,11 +38,10 @@ contract DAOtoken is IERC20{
      * ===================================================
      */
 
-    modifier onlyOwner(){
+    modifier onlyOwner() {
         require(msg.sender == _owner, "not owner");
         _;
     }
-
 
     /**
      * ===================================================
@@ -53,22 +49,20 @@ contract DAOtoken is IERC20{
      * ===================================================
      */
 
-    constructor(address _nftaddress){
+    constructor(address _nftaddress) {
         _owner = msg.sender;
         nftcetificate = IERC20(_nftaddress);
     }
-   
 
-    function name() public view  returns (string memory) {
+    function name() public view returns (string memory) {
         return _name;
     }
 
-
-    function symbol() public view  returns (string memory) {
+    function symbol() public view returns (string memory) {
         return _symbol;
     }
 
-    function decimals() public pure  returns (uint8) {
+    function decimals() public pure returns (uint8) {
         return 18;
     }
 
@@ -86,28 +80,31 @@ contract DAOtoken is IERC20{
     }
 
     // return the amount to be minted to members
-    function getMintperPerson() external view returns(uint256){
+    function getMintperPerson() external view returns (uint256) {
         return _mintAmountperPerson;
     }
 
     //gets the owner of the contracts
-    function getOwner() public view returns(address){
+    function getOwner() public view returns (address) {
         return _owner;
     }
 
-    /// @notice sets the owner to a new one 
+    /// @notice sets the owner to a new one
     /// @dev NOTE this script must transfer ownership imedately after deployment
-    function setNewOwner(address newOwner) public onlyOwner{
+    function setNewOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
 
-    // get state oof minting
-    function stateOfMinting() external view returns(bool){
+    /// @notice this fuction is used to get the state of minting
+    /// this returns a bool (true or false)
+    /// if state of minting is false, user can't mint token
+    /// if true, users will be able to mint token
+    function stateOfMinting() external view returns (bool) {
         return _enableMinting;
     }
 
-    // called by owner to enablr minting every session 🤑
-    function enableMinting(bool status) external onlyOwner{
+    /// @notice this function is called by owner to enable minting every session 🤑
+    function enableMinting(bool status) external onlyOwner {
         _enableMinting = status;
     }
 
@@ -147,12 +144,12 @@ contract DAOtoken is IERC20{
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) public  returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
         address owner = msg.sender;
         uint256 currentAllowance = allowance(owner, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
-            _approve(owner, spender, currentAllowance - subtractedValue);
-            return true;
+        _approve(owner, spender, currentAllowance - subtractedValue);
+        return true;
     }
 
     function _transfer(
@@ -178,7 +175,7 @@ contract DAOtoken is IERC20{
     //the mint tokens to an address should have certificate nft before minting
     function _mint() internal virtual {
         require(nftcetificate.balanceOf(msg.sender) >= 1, "not a member");
-        uint _amount = _mintAmountperPerson * 1e18;
+        uint256 _amount = _mintAmountperPerson * 1e18;
         _totalSupply += _amount;
         _balances[msg.sender] += _amount;
         emit Transfer(address(0), msg.sender, _amount);
@@ -196,8 +193,8 @@ contract DAOtoken is IERC20{
     }
 
     /// @dev the diamond would be able to burn users token during voting
-    /// @notice this function would be used to burn DAO token from a percified user address 
-    /// @param _voter: this is the address that the burn would happen to 
+    /// @notice this function would be used to burn DAO token from a percified user address
+    /// @param _voter: this is the address that the burn would happen to
     /// @param _voting_power: this is the is the amount of power(token) this user is willing use for this vote
     function burn(address _voter, uint256 _voting_power) external onlyOwner {
         _burn(_voter, _voting_power);
