@@ -9,11 +9,29 @@ import "../interfaces/IDAOToken.sol";
 contract GovernanceFacet {
     States internal states;
 
+    /// Custom errors
+    error notOwner(string);
+    error invalidTime(string);
+    error proposalAlreadyCancelled();
+    error alreadyVoted();
+    error insufficientToken();
+    error proposalIsCancelled();
+
+    /// Events
+    event ProposalCreated(string indexed name, uint256 indexed endTime);
+    event ProposalCancelled(uint256 indexed _proposalID);
+    event proposalVoted(uint256 indexed proposalID, uint256 indexed voteType, uint256 indexed voteWeight);
+
     /// @dev this function creates a proposal
     /// only owner of the contract can create proposals
     function createProposal(string memory _name, uint256 _endTime) external {
-        require(msg.sender == states.owner, "only owner");
-        require(_endTime > block.timestamp, "invalid end time");
+        if (msg.sender != states.owner) {
+            revert notOwner("only owner required");
+        }
+        if (_endTime < block.timestamp) {
+            revert invalidTime("invalid end time");
+        }
+
         states.ID = states.ID + 1;
         Proposal storage newProposal = states.proposals[states.ID];
 
@@ -21,14 +39,22 @@ contract GovernanceFacet {
         newProposal.name = _name;
         newProposal.endTime = _endTime;
         states.proposalCount += 1;
+
+        emit ProposalCreated(_name, _endTime);
     }
 
     /// @dev this function is used to cancel a proposal, given a proposalID
     /// only owner of the contract can create proposals
     function cancelProposal(uint256 _proposalID) external {
-        require(msg.sender == states.owner, "only owner");
-        require(states.proposals[_proposalID].cancelled == false, "proposal already cancelled");
+        if (msg.sender != states.owner) {
+            revert notOwner("only owner required");
+        }
+        if (states.proposals[_proposalID].cancelled == true) {
+            revert proposalAlreadyCancelled();
+        }
         states.proposals[_proposalID].cancelled = true;
+
+        emit ProposalCancelled(_proposalID);
     }
 
     /// @dev this function returns all created proposals
@@ -63,9 +89,15 @@ contract GovernanceFacet {
         uint256 _voteType,
         uint256 _voteWeight
     ) external {
-        require(states.voted[msg.sender][_proposalID] == false, "already voted");
-        require(IDAOToken(states.daoToken).balanceOf(msg.sender) >= _voteWeight, "insufficient DAO token to vote");
-        require(states.proposals[_proposalID].cancelled == false, "proposal is cancelled");
+        if (states.voted[msg.sender][_proposalID] == true) {
+            revert alreadyVoted();
+        }
+        if (IDAOToken(states.daoToken).balanceOf(msg.sender) < _voteWeight) {
+            revert insufficientToken();
+        }
+        if (states.proposals[_proposalID].cancelled == true) {
+            revert proposalIsCancelled();
+        }
 
         states.voteID = states.voteID + 1;
 
@@ -88,6 +120,8 @@ contract GovernanceFacet {
         newVote.voter = msg.sender;
         newVote.weight = _voteWeight;
         states.totalVoteCount += 1;
+
+        emit proposalVoted(_proposalID, _voteType, _voteWeight);
     }
 
     /// @dev this function returns all the voter for a particular proposal given the proposalID
