@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 
 /// @title Pre-Certificate Token
+/// @author https://github.com/Realkayzee, https://github.com/fesimaxu, https://github.com/centie22
 /// The Pre-Certifcate Token contract is used as a proof of payment
 /// Students that paid the required amount can mint
 /// Student can pay installmentally
