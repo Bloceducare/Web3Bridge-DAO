@@ -90,6 +90,7 @@ contract GovernanceFacet {
         states.totalVoteCount += 1;
     }
 
+    /// @dev this function returns all the voter for a particular proposal given the proposalID
     function getVoters(uint256 _proposalID) public view returns (Vote[] memory) {
         uint256 currentVoterIndex = 0;
         uint256 votesCount = states.totalVoteCount;
