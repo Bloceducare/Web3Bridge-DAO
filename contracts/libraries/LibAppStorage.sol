@@ -7,6 +7,7 @@ struct Proposal {
     uint256 voteCount;
     uint256 support;
     uint256 against;
+    bool active;
 }
 
 struct Voter {
@@ -15,8 +16,10 @@ struct Voter {
     uint256 proposalVoted;
 }
 
-struct Mappings {
+struct States {
     mapping(uint256 => Proposal) proposals;
     mapping(address => mapping(uint256 => bool)) voted;
     mapping(uint256 => Voter) proposalVoters;
+    uint256 ID;
+    uint256 proposalCount;
 }
