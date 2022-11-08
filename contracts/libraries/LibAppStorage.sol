@@ -19,7 +19,6 @@ struct Vote {
 }
 
 struct States {
-    address owner;
     mapping(uint256 => Proposal) proposals;
     mapping(address => mapping(uint256 => bool)) voted;
     mapping(uint256 => Vote) votes;
@@ -27,5 +26,6 @@ struct States {
     uint256 voteID;
     uint256 proposalCount;
     uint256 totalVoteCount;
+    address admin;
     address daoToken;
 }

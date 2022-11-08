@@ -29,7 +29,7 @@ contract Diamond {
         cut[0] = IDiamondCut.FacetCut({facetAddress: _diamondCutFacet, action: IDiamondCut.FacetCutAction.Add, functionSelectors: functionSelectors});
         LibDiamond.diamondCut(cut, address(0), "");
 
-        states.owner = _contractOwner;
+        states.admin = _contractOwner;
         states.daoToken = _daoToken;
     }
 
