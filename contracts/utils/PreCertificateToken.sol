@@ -105,4 +105,12 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
         sd.claimed = true;
     }
+
+    function updateAdmin(address newAdmin) internal {
+        assert(!address(0x0));
+        if(msg.sender != admin){
+            revert notAdmin("Not an Admin");  
+        }
+        admin = newAdmin;
+    }
 }
