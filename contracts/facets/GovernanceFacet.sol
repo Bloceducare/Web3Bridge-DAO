@@ -10,7 +10,7 @@ contract GovernanceFacet {
     States internal states;
 
     /// Custom errors
-    error notOwner(string);
+    error notAdmin(string);
     error invalidTime(string);
     error proposalAlreadyCancelled();
     error alreadyVoted();
@@ -21,12 +21,13 @@ contract GovernanceFacet {
     event ProposalCreated(string indexed name, uint256 indexed endTime);
     event ProposalCancelled(uint256 indexed _proposalID);
     event proposalVoted(uint256 indexed proposalID, uint256 indexed voteType, uint256 indexed voteWeight);
+    event adminChanged(address newAdmin);
 
     /// @dev this function creates a proposal
     /// only owner of the contract can create proposals
     function createProposal(string memory _name, uint256 _endTime) external {
-        if (msg.sender != states.owner) {
-            revert notOwner("only owner required");
+        if (msg.sender != states.admin) {
+            revert notAdmin("only admin required");
         }
         if (_endTime < block.timestamp) {
             revert invalidTime("invalid end time");
@@ -46,8 +47,8 @@ contract GovernanceFacet {
     /// @dev this function is used to cancel a proposal, given a proposalID
     /// only owner of the contract can create proposals
     function cancelProposal(uint256 _proposalID) external {
-        if (msg.sender != states.owner) {
-            revert notOwner("only owner required");
+        if (msg.sender != states.admin) {
+            revert notAdmin("only admin required");
         }
         if (states.proposals[_proposalID].cancelled == true) {
             revert proposalAlreadyCancelled();
@@ -150,5 +151,19 @@ contract GovernanceFacet {
         }
 
         return allVoters;
+    }
+
+    function totalVoteCount() external view returns (uint256) {
+        return states.totalVoteCount;
+    }
+
+    function changeAdmin(address _newAdmin) external {
+        if (msg.sender != states.admin) {
+            revert notAdmin("only admin required");
+        }
+
+        states.admin = _newAdmin;
+
+        emit adminChanged(_newAdmin);
     }
 }
