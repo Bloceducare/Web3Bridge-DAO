@@ -24,7 +24,7 @@ contract GovernanceFacet {
     event adminChanged(address newAdmin);
 
     /// @dev this function creates a proposal
-    /// only owner of the contract can create proposals
+    /// only an admin of the contract can create proposals
     function createProposal(string memory _name, uint256 _endTime) external {
         if (msg.sender != states.admin) {
             revert notAdmin("only admin required");
@@ -45,7 +45,7 @@ contract GovernanceFacet {
     }
 
     /// @dev this function is used to cancel a proposal, given a proposalID
-    /// only owner of the contract can create proposals
+    /// only an admin of the contract can cancel proposals
     function cancelProposal(uint256 _proposalID) external {
         if (msg.sender != states.admin) {
             revert notAdmin("only admin required");
@@ -153,10 +153,13 @@ contract GovernanceFacet {
         return allVoters;
     }
 
+    /// @dev this function returns total count votes done on this contract
     function totalVoteCount() external view returns (uint256) {
         return states.totalVoteCount;
     }
 
+    /// @dev this function is used to change admin rights to another address
+    /// only the current admin can call this function
     function changeAdmin(address _newAdmin) external {
         if (msg.sender != states.admin) {
             revert notAdmin("only admin required");
