@@ -16,6 +16,8 @@ contract GovernanceFacet {
     error alreadyVoted();
     error insufficientToken();
     error proposalIsCancelled();
+    error noZeroAddressAllowed();
+    error invalidProposal();
 
     /// Events
     event ProposalCreated(string indexed name, uint256 indexed endTime);
@@ -90,14 +92,14 @@ contract GovernanceFacet {
         uint256 _voteType,
         uint256 _voteWeight
     ) external {
+        if (states.proposals[_proposalID].cancelled == true) {
+            revert proposalIsCancelled();
+        }
         if (states.voted[msg.sender][_proposalID] == true) {
             revert alreadyVoted();
         }
         if (IDAOToken(states.daoToken).balanceOf(msg.sender) < _voteWeight) {
             revert insufficientToken();
-        }
-        if (states.proposals[_proposalID].cancelled == true) {
-            revert proposalIsCancelled();
         }
 
         states.voteID = states.voteID + 1;
@@ -163,6 +165,10 @@ contract GovernanceFacet {
     function changeAdmin(address _newAdmin) external {
         if (msg.sender != states.admin) {
             revert notAdmin("only admin required");
+        }
+
+        if(_newAdmin == address(0)){
+            revert noZeroAddressAllowed();
         }
 
         states.admin = _newAdmin;
