@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-
-contract TipsToken is ERC20("", ""){
+/// @dev this contract is the tips token contract which will be minted to cohort students
+/// which they use to tip mentors when they receive help from these mentors
+contract TipsToken is ERC20("", "") {
     constructor(
         string memory _tokenName,
         string memory _tokenSymbol,
@@ -15,41 +16,34 @@ contract TipsToken is ERC20("", ""){
         tokenSymbol = _tokenSymbol;
     }
 
-
     bytes32 public merkleRoot;
-    address owner; 
+    address owner;
     string tokenName;
     string tokenSymbol;
     uint216 NumOfTokensToMint;
     mapping(address => bool) public studentClaimed;
 
-
-
-    function whitelistMint(bytes32[] calldata _merkleProof) internal view returns(bool status) {
+    function whitelistMint(bytes32[] calldata _merkleProof) internal view returns (bool status) {
         require(!studentClaimed[msg.sender], "Address already claimed");
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(_merkleProof, merkleRoot, leaf),
-            "Invalid Merkle Proof."
-        );
+        require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), "Invalid Merkle Proof.");
         status = true;
     }
 
     function mintToken(bytes32[] calldata _merkleProof) public {
         bool stat = whitelistMint(_merkleProof);
         require(stat, "Invaild Proof");
-         _mint(msg.sender, 2e18);
+        _mint(msg.sender, 2e18);
         studentClaimed[msg.sender] = true;
-
     }
 
-    function changeHashRoot ( bytes32 _merkleRoot) external {   
+    function changeHashRoot(bytes32 _merkleRoot) external {
         assert(msg.sender == owner);
-         merkleRoot = _merkleRoot;
+        merkleRoot = _merkleRoot;
     }
 
-    function setNumberOfTokensToMint (uint216 _NumOfTokensTMint) external {
-         assert(msg.sender == owner);
+    function setNumberOfTokensToMint(uint216 _NumOfTokensTMint) external {
+        assert(msg.sender == owner);
         NumOfTokensToMint = _NumOfTokensTMint;
     }
 
@@ -57,7 +51,6 @@ contract TipsToken is ERC20("", ""){
         return tokenName;
     }
 
-    
     function symbol() public view virtual override returns (string memory) {
         return tokenSymbol;
     }
