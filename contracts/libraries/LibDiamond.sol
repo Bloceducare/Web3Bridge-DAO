@@ -6,8 +6,22 @@ pragma solidity ^0.8.0;
 * EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535
 /******************************************************************************/
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
+import {IAdminMint} from "../interfaces/IAdminMint.sol";
 
 library LibDiamond {
+    // =======================
+    // CUSTOM ERROR
+    // =======================
+    error ADDRESS_IS_BLACKLISTED();
+
+
+    // ===========================
+    // EVENTS
+    // ===========================
+    event Blacklisted(address _addr);
+
+
+
     bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
 
     struct FacetAddressAndPosition {
@@ -33,6 +47,8 @@ library LibDiamond {
         mapping(bytes4 => bool) supportedInterfaces;
         // owner of the contract
         address contractOwner;
+        address pre_certificate_token;
+        mapping(address => bool) is_blacklisted;
     }
 
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -211,5 +227,30 @@ library LibDiamond {
             contractSize := extcodesize(_contract)
         }
         require(contractSize > 0, _errorMessage);
+    }
+
+    function enforceNotBlacklisted(address _addr) internal view {
+        if(diamondStorage().is_blacklisted[msg.sender]) {
+            revert ADDRESS_IS_BLACKLISTED();
+        }
+    }
+
+    function mint_pre_certificate_token(address _to) internal {
+        enforceIsContractOwner();
+        enforceNotBlacklisted(_to);
+        DiamondStorage storage ds = diamondStorage();
+        IAdminMint(ds.pre_certificate_token).diamond_mint(_to);
+    }
+
+    function blacklist_address(address _addr) internal {
+        enforceIsContractOwner();
+        DiamondStorage storage ds = diamondStorage();
+        ds.is_blacklisted[_addr] = true;
+
+        emit Blacklisted(_addr);
+    }
+
+    function is_blicklisted(address _addr) internal view returns(bool is_blacklisted_) {
+        is_blacklisted_ = diamondStorage().is_blacklisted[_addr];
     }
 }

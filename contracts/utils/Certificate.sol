@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IHasPaid} from "../interfaces/IHasPaid.sol";
 
-pragma solidity ^0.8.4;
 
 contract Certificate is ERC721, ERC721URIStorage, Ownable {
     bytes32 merkle_root;
@@ -17,8 +16,11 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIdCounter;
 
     mapping(address => bool) hasMinted;
+    address pre_cert_token; // used to see if a user has paid cohort fee be mint certificate to them
 
-    constructor() ERC721("Web3bridge Certificate", "W3C") {}
+    constructor(string memory _name, string memory _symbol, address _pre_cerificate_token) ERC721(_name, _symbol) {
+        pre_cert_token = _pre_cerificate_token;
+    }
 
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkle_root = root;
@@ -27,21 +29,20 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
     /// @notice this function would mint certificate to user if all conditions are met
     /// @dev this function would only mint if the address calling it is whitelisted and has not minted before and has paid the $1500
     function mintCertificate(
-        address to,
         string memory uri,
         bytes32[] memory proof
     ) public {
-        require(!hasMinted[to], "Already minted certificate");
-        require(IHasPaid(owner()).hasPaid(address), "Has not paid");
+        require(!hasMinted[msg.sender], "Already minted certificate");
+        require(IHasPaid(pre_cert_token).checkCompleted(msg.sender), "Has not paid");
 
-        hasMinted[to] = true;
+        hasMinted[msg.sender] = true;
 
         // the node is the same as a leaf
-        bytes32 node = keccak256(abi.encodePacked(to));
+        bytes32 node = keccak256(abi.encodePacked(msg.sender));
         require(isWhitelisted(proof, node), "Error: address not whitelisted");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+        _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
     }
 
