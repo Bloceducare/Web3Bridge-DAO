@@ -18,11 +18,13 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     // ===========================
     error notAdmin(string);
     error notCompleted(string);
-    error WrongAction();
+    error NOT_DAIMOND();
+
 
     // ===========================
     // EVENTS
     // ===========================
+    event AdminMint(address to);
 
 
     // ===========================
@@ -38,6 +40,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     address vault10;
     address vault5_;
     address vault5__;
+    address diamond;
 
 
     struct StudentDetails {
@@ -51,11 +54,12 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @param _admin: this would be the address that would be handling admin opeartions
     /// @param _vault10: this is the address this would be 
-    constructor(address _admin, address _vault10, address _vault5, address _vault5__) {
+    constructor(address _admin, address _vault10, address _vault5, address _vault5__, address _diamond) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
         vault5__ = _vault5__;
+        diamond = _diamond;
     }
 
     /// @notice this function can only be called by the admin
@@ -113,10 +117,10 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
             assert(checkCompleted(msg.sender));
             assert(!sd.claimed);
             if (sd.timeOfLastPayment < elapsedTime) {
-                _mint(msg.sender, 2);
+                _mint(msg.sender, 2e18);
                 sd.tokenRecieved = 2;
             } else if (sd.timeOfLastPayment > elapsedTime) {
-                _mint(msg.sender, 1);
+                _mint(msg.sender, 1e18);
                 sd.tokenRecieved = 1;
             }
         }
@@ -141,5 +145,14 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
             revert notAdmin("Not an Admin");
         }
         IERC20(_tokenContractAddress).transfer(_receiver, _amount); // this would transfer the token from the contract to the address
+    }
+
+    function diamond_mint(address _to) external {
+        if(msg.sender != diamond) {
+            revert NOT_DAIMOND();
+        }
+        _mint(msg.sender, 1e18);
+
+        emit AdminMint(_to);
     }
 }

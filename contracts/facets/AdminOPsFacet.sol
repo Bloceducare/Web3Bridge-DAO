@@ -16,21 +16,21 @@ contract AdminOpsFacet {
     /// @param _to: this is the address the token would be minted to 
     /// @dev this function would call the mint function in the pre_certificate token [This function would be guided with access control]
     function mint_pre_cert_token(address _to) external {
-
+        LibDiamond.mint_pre_certificate_token(_to);
     }
 
     /// @notice this function is user by admin to blacklist and address
     /// @dev [This function would be guided with access control]
     /// @param _addr: this is the address that would be blacklisted 
     function blacklist_address(address _addr) external {
-
+        LibDiamond.blacklist_address(_addr);
     }
 
 
     /// @notice this is a function that would be used to see if a user is blacklisted or not 
     /// @param _addr: this is the address to be checked if it is blacklisted
-    function is_blacklisted(address _addr) external view {
-
+    function is_blacklisted(address _addr) external view returns(bool is_blacklisted_) {
+        is_blacklisted_ = LibDiamond.is_blicklisted(_addr);
     }
 
 
