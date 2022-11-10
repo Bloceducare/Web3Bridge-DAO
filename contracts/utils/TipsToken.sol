@@ -5,12 +5,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @dev this contract is the tips token contract which will be minted to cohort students
 /// which they use to tip mentors when they receive help from these mentors
-contract TipsToken is ERC20("", "") {
+contract TipsToken is ERC20 {
     constructor(
         string memory _tokenName,
         string memory _tokenSymbol,
         address _owner
-    ) {
+    ) ERC20(_tokenName, _tokenSymbol) {
         owner = _owner;
         tokenName = _tokenName;
         tokenSymbol = _tokenSymbol;

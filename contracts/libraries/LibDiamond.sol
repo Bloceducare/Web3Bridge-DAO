@@ -33,6 +33,7 @@ library LibDiamond {
         mapping(bytes4 => bool) supportedInterfaces;
         // owner of the contract
         address contractOwner;
+        address pre_certificate_token;
     }
 
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
