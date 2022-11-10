@@ -7,6 +7,7 @@ import "@nomiclabs/hardhat-etherscan";
 require("hardhat-contract-sizer");
 require("dotenv").config();
 require("solidity-coverage");
+require("hardhat-tracer");
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:

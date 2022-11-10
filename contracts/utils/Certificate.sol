@@ -18,7 +18,11 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
 
     mapping(address => bool) hasMinted;
 
-    constructor() ERC721("Web3bridge Certificate", "W3C") {}
+    address haspaid;
+
+    constructor(address _haspaid) ERC721("Web3bridge Certificate", "W3C") {
+        haspaid = _haspaid;
+    }
 
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkle_root = root;
@@ -31,8 +35,13 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
         string memory uri,
         bytes32[] memory proof
     ) public {
+
+        ///////////////////////////////////////////////////////////OSEIWE CHANGED SOMETHING/////////////////////////////////////////////////
+
+        require(IHasPaid(haspaid).hasPaid(to), "has not paid");
         require(!hasMinted[to], "Already minted certificate");
-        require(IHasPaid(owner()).hasPaid(address), "Has not paid");
+
+        //////////////////////////////////////////////////////////////BOSSES CHECK THIS THING OOO////////////////////////////////////////////////////////      
 
         hasMinted[to] = true;
 
