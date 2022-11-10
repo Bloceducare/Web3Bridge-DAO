@@ -22,26 +22,26 @@ describe("DAOtoken", function () {
   //this test is not completed : waiting for the nft certificate and its onlyowner than has be used to test , need to test with others
 
   describe("Mint tokens to members", function () {
-    it("Should Mint tokens when ........", async function () {
-        const {owner,  daotoken, nfttoken} = await loadFixture(deploysDaotoken);
-        let amount1 = ethers.utils.parseEther("1");
-        await nfttoken.mint(amount1)
-        let amount = ethers.utils.parseEther("20");
-        await daotoken.setMintAmountPerPerson(20);
-        await daotoken.enableMinting(true);
-        await daotoken.mint();
-        expect(await daotoken.balanceOf(owner.address)).to.equal(amount);
-    });
+    // it("Should Mint tokens when ........", async function () {
+    //     const {owner,  daotoken, nfttoken} = await loadFixture(deploysDaotoken);
+    //     let amount1 = ethers.utils.parseEther("1");
+    //     await nfttoken.mint(amount1)
+    //     let amount = ethers.utils.parseEther("20");
+    //     await daotoken.setMintAmountPerPerson(20);
+    //     await daotoken.enableMinting(true);
+    //     await daotoken.mint();
+    //     expect(await daotoken.balanceOf(owner.address)).to.equal(amount);
+    // });
 
-    it("revert when minting is off", async function () {
-      const {daotoken, nfttoken} = await loadFixture(deploysDaotoken);
-      let amount1 = ethers.utils.parseEther("1");
-      await nfttoken.mint(amount1)
-      let amount = ethers.utils.parseEther("20");
-      await daotoken.setMintAmountPerPerson(20);
-     // await daotoken.enableMinting(true);
-      await expect (daotoken.mint()).to.revertedWith("session has not ended");
-  });
+  //   it("revert when minting is off", async function () {
+  //     const {daotoken, nfttoken} = await loadFixture(deploysDaotoken);
+  //     let amount1 = ethers.utils.parseEther("1");
+  //     await nfttoken.mint(amount1)
+  //     let amount = ethers.utils.parseEther("20");
+  //     await daotoken.setMintAmountPerPerson(20);
+  //    // await daotoken.enableMinting(true);
+  //     await expect (daotoken.mint()).to.revertedWith("session has not ended");
+  // });
     
   });
 });
