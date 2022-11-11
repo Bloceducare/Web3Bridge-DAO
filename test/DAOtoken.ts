@@ -20,6 +20,8 @@ describe("DAOtoken", function () {
 
     return {owner, otherAccount,daotoken,certificate, add2};
   }
+  
+/////////////////
 
   describe("testing", function () {
     it("returns the amount to mint to each person", async function () {
