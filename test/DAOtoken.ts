@@ -31,7 +31,7 @@ describe("DAOtoken", function () {
       expect (await daotoken.getMintperPerson()).to.equal("20");
     })
 
-    it("set minting to true and a seesion", async function () {
+    it("set minting to true and a session", async function () {
       const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
       await certificate.safeMint(otherAccount.address,"1");
       await daotoken.setMintAmountPerPerson("20");
@@ -41,7 +41,7 @@ describe("DAOtoken", function () {
       await daotoken.connect(add2).enableMinting(true);
     });
 
-    it("set minting to true and a seesion", async function () {
+    it("set minting to true and a session", async function () {
       const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
       await certificate.safeMint(otherAccount.address,"1");
       await daotoken.setMintAmountPerPerson("20");
@@ -53,7 +53,7 @@ describe("DAOtoken", function () {
       await daotoken.connect(otherAccount).mint();
     })
 
-    it("set minting to true and a seesion", async function () {
+    it("set minting to true and a session", async function () {
       const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
       await certificate.safeMint(otherAccount.address,"1");
       await daotoken.setMintAmountPerPerson("20");
