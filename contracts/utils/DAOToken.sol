@@ -90,7 +90,7 @@ contract DAOtoken is IERC20 {
     }
 
     /// @notice sets the owner to a new one
-    /// @dev NOTE this script must transfer ownership imedately after deployment
+    /// @dev NOTE this script must transfer ownership immedately after deployment
     function setNewOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
