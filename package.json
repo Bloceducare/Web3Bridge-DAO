@@ -26,6 +26,7 @@
     "hardhat": "^2.6.8",
     "hardhat-contract-sizer": "^2.1.1",
     "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-tracer": "^1.1.1",
     "js-to-ts-converter": "^0.18.1",
     "prettier": "^2.4.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",

@@ -7,9 +7,7 @@ import { utils } from "ethers";
 import { it } from "mocha";
 
 describe("DAOtoken", function () {
-
-    async function deploysDaotoken() {
-
+  async function deploysDaotoken() {
     const [owner, otherAccount, add2] = await ethers.getSigners();
 
     const Certificate = await ethers.getContractFactory("MockCertificate");
@@ -18,52 +16,59 @@ describe("DAOtoken", function () {
     const DAOtoken = await ethers.getContractFactory("DAOtoken");
     const daotoken = await DAOtoken.deploy(certificate.address);
 
-    return {owner, otherAccount,daotoken,certificate, add2};
+    return { owner, otherAccount, daotoken, certificate, add2 };
   }
-  
-/////////////////
 
-  describe("testing", function () {
+  /////////////////
+
+  describe("DAOToken Contract Testing", function () {
     it("returns the amount to mint to each person", async function () {
-      const {owner,otherAccount,daotoken,certificate} = await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address,"1");
+      const { owner, otherAccount, daotoken, certificate } = await loadFixture(
+        deploysDaotoken
+      );
+      await certificate.safeMint(otherAccount.address, "1");
       await daotoken.setMintAmountPerPerson("20");
-      expect (await daotoken.getMintperPerson()).to.equal("20");
-    })
+      expect(await daotoken.getMintperPerson()).to.equal("20");
+    });
 
     it("set minting to true and a session", async function () {
-      const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address,"1");
+      const { owner, otherAccount, daotoken, certificate, add2 } =
+        await loadFixture(deploysDaotoken);
+      await certificate.safeMint(otherAccount.address, "1");
       await daotoken.setMintAmountPerPerson("20");
-      expect (await daotoken.getMintperPerson()).to.equal("20");
+      expect(await daotoken.getMintperPerson()).to.equal("20");
       await daotoken.setNewOwner(add2.address);
       // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
       await daotoken.connect(add2).enableMinting(true);
     });
 
-    it("set minting to true and a session", async function () {
-      const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address,"1");
+    it("mint to a whitelisted address when minting is true", async function () {
+      const { owner, otherAccount, daotoken, certificate, add2 } =
+        await loadFixture(deploysDaotoken);
+      await certificate.safeMint(otherAccount.address, "1");
       await daotoken.setMintAmountPerPerson("20");
-      expect (await daotoken.getMintperPerson()).to.equal("20");
+      expect(await daotoken.getMintperPerson()).to.equal("20");
       await daotoken.setNewOwner(add2.address);
       // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
       await daotoken.connect(add2).enableMinting(true);
       // expect (await daotoken.mint()).to.revertedWith(" not a member ");
       await daotoken.connect(otherAccount).mint();
-    })
+    });
 
-    it("set minting to true and a session", async function () {
-      const {owner,otherAccount,daotoken,certificate, add2} = await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address,"1");
+    it("mint to an address and confirm address balance", async function () {
+      const { owner, otherAccount, daotoken, certificate, add2 } =
+        await loadFixture(deploysDaotoken);
+      await certificate.safeMint(otherAccount.address, "1");
       await daotoken.setMintAmountPerPerson("20");
-      expect (await daotoken.getMintperPerson()).to.equal("20");
+      expect(await daotoken.getMintperPerson()).to.equal("20");
       await daotoken.setNewOwner(add2.address);
       // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
       await daotoken.connect(add2).enableMinting(true);
       // expect (await daotoken.mint()).to.revertedWith(" not a member ");
       await daotoken.connect(otherAccount).mint();
-      expect(await daotoken.balanceOf(otherAccount.address)).to.equal( ethers.utils.parseEther("20"))
-    })
+      expect(await daotoken.balanceOf(otherAccount.address)).to.equal(
+        ethers.utils.parseEther("20")
+      );
+    });
   });
-})
+});

@@ -23,7 +23,8 @@ export async function deployDiamond() {
   const Diamond = await ethers.getContractFactory("Diamond");
   const diamond = await Diamond.deploy(
     contractOwner.address,
-    diamondCutFacet.address
+    diamondCutFacet.address,
+    "daotoken address here"
   );
   await diamond.deployed();
   console.log("Diamond deployed:", diamond.address);
