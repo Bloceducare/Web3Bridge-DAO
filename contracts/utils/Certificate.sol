@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IHasPaid} from "../interfaces/IHasPaid.sol";
 
-
 contract Certificate is ERC721, ERC721URIStorage, Ownable {
     bytes32 merkle_root;
     using Counters for Counters.Counter;
@@ -18,7 +17,11 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
     mapping(address => bool) hasMinted;
     address pre_cert_token; // used to see if a user has paid cohort fee be mint certificate to them
 
-    constructor(string memory _name, string memory _symbol, address _pre_cerificate_token) ERC721(_name, _symbol) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _pre_cerificate_token
+    ) ERC721(_name, _symbol) {
         pre_cert_token = _pre_cerificate_token;
     }
 
@@ -28,10 +31,7 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
 
     /// @notice this function would mint certificate to user if all conditions are met
     /// @dev this function would only mint if the address calling it is whitelisted and has not minted before and has paid the $1500
-    function mintCertificate(
-        string memory uri,
-        bytes32[] memory proof
-    ) public {
+    function mintCertificate(string memory uri, bytes32[] memory proof) public {
         require(!hasMinted[msg.sender], "Already minted certificate");
         require(IHasPaid(pre_cert_token).checkCompleted(msg.sender), "Has not paid");
 
