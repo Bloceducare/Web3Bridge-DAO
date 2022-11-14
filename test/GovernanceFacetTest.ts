@@ -186,6 +186,7 @@ describe("GovenanceFacet", function () {
       );
 
       await createProposal.wait();
+
       const proposalCount2 = await governance.proposalCount();
       expect(proposalCount2).to.equal("2");
 
