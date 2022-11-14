@@ -20,12 +20,10 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     error notCompleted(string);
     error NOT_DAIMOND();
 
-
     // ===========================
     // EVENTS
     // ===========================
     event AdminMint(address to);
-
 
     // ===========================
     // STATE VARIABLE
@@ -42,7 +40,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     address vault5__;
     address diamond;
 
-
     struct StudentDetails {
         uint256 amountPaid;
         bool claimed;
@@ -53,8 +50,14 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     mapping(address => StudentDetails) studentDetails;
 
     /// @param _admin: this would be the address that would be handling admin opeartions
-    /// @param _vault10: this is the address this would be 
-    constructor(address _admin, address _vault10, address _vault5, address _vault5__, address _diamond) {
+    /// @param _vault10: this is the address this would be
+    constructor(
+        address _admin,
+        address _vault10,
+        address _vault5,
+        address _vault5__,
+        address _diamond
+    ) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
@@ -100,7 +103,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     /// @notice this is a view function that would be used to see if a user have paid the cohort fee
-    /// @param _addr: this is a the address that is to be checked if the account has paid 
+    /// @param _addr: this is a the address that is to be checked if the account has paid
     function checkCompleted(address _addr) public view returns (bool) {
         StudentDetails memory sd = studentDetails[_addr];
         if (sd.amountPaid >= cohortFee) {
@@ -130,25 +133,29 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     function updateAdmin(address newAdmin) internal {
         assert(newAdmin != address(0));
-        if(msg.sender != admin){
-            revert notAdmin("Not an Admin");  
+        if (msg.sender != admin) {
+            revert notAdmin("Not an Admin");
         }
         admin = newAdmin;
     }
 
     /// @dev this function would move any ERC20 token that is transfered to this address
-    /// @param _receiver: this is the address that would be receiving the tokens 
-    /// @param _tokenContractAddress: this is the address of the erc 20 contract 
+    /// @param _receiver: this is the address that would be receiving the tokens
+    /// @param _tokenContractAddress: this is the address of the erc 20 contract
     /// @param _amount: this is the amount of token the manager want to get out of this contract
-    function movingGeneric(address _receiver, address _tokenContractAddress, uint256 _amount) public {
-        if(msg.sender == admin) {
+    function movingGeneric(
+        address _receiver,
+        address _tokenContractAddress,
+        uint256 _amount
+    ) public {
+        if (msg.sender == admin) {
             revert notAdmin("Not an Admin");
         }
         IERC20(_tokenContractAddress).transfer(_receiver, _amount); // this would transfer the token from the contract to the address
     }
 
     function diamond_mint(address _to) external {
-        if(msg.sender != diamond) {
+        if (msg.sender != diamond) {
             revert NOT_DAIMOND();
         }
         _mint(msg.sender, 1e18);
