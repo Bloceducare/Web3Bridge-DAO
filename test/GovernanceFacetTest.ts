@@ -185,7 +185,7 @@ describe("GovenanceFacet", function () {
         deadline
       );
 
-      await createProposal.wait();
+      await createNewProposal.wait();
 
       const proposalCount2 = await governance.proposalCount();
       expect(proposalCount2).to.equal("2");
@@ -207,6 +207,51 @@ describe("GovenanceFacet", function () {
 
       const getVoters2 = await governance.getVoters(2);
       expect(getVoters2.length).to.equal(1);
+    });
+
+    it("should create a proposal and ensure proposalCount increased", async function () {
+      const { diamond, daotoken, certificate, owner } = await loadFixture(
+        deploysGovernanceFacet
+      );
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+
+      const governance = await ethers.getContractAt(
+        "GovernanceFacet",
+        diamond.address
+      );
+
+      const createProposal = await governance.createProposal(
+        "Get another House",
+        deadline
+      );
+      await createProposal.wait();
+      const proposalCount = await governance.proposalCount();
+      expect(proposalCount).to.equal("1");
+
+      const cancelProposal = await governance.cancelProposal(1);
+      await cancelProposal.wait();
+
+      /// Ensure user has the NFT certificate and Dao token
+      const daoTokenOwner = await daotoken.getOwner();
+      expect(daoTokenOwner).to.equal(owner.address);
+
+      const enableMinting = await daotoken.enableMinting(true);
+      await enableMinting.wait();
+
+      const mintCertificate = await certificate.safeMint(owner.address, 1);
+      await mintCertificate.wait();
+
+      const mintDaoToken = await daotoken.mint();
+      await mintDaoToken.wait();
+
+      const amountPerPerson = ethers.utils.parseEther("20");
+      const userTokenBalance = await daotoken.balanceOf(owner.address);
+      expect(userTokenBalance).to.equal(amountPerPerson);
+
+      // Try voting for a cancelled proposal
+      await expect(governance.voteProposal(1, 1, 2)).to.be.revertedWith(
+        "proposalIsCancelled()"
+      );
     });
   });
 });
