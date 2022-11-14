@@ -104,7 +104,8 @@ contract GovernanceFacet {
 
         states.voteID = states.voteID + 1;
 
-        IDAOToken(states.daoToken).burn(msg.sender, _voteWeight);
+        uint256 burnAmount = _voteWeight * 1e18;
+        IDAOToken(states.daoToken).burn(msg.sender, burnAmount);
 
         if (_voteType == 1) {
             states.proposals[_proposalID].support += _voteWeight;
@@ -167,7 +168,7 @@ contract GovernanceFacet {
             revert notAdmin("only admin required");
         }
 
-        if(_newAdmin == address(0)){
+        if (_newAdmin == address(0)) {
             revert noZeroAddressAllowed();
         }
 
