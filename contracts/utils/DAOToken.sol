@@ -196,7 +196,8 @@ contract DAOtoken is IERC20 {
     /// @notice this function would be used to burn DAO token from a percified user address
     /// @param _voter: this is the address that the burn would happen to
     /// @param _voting_power: this is the is the amount of power(token) this user is willing use for this vote
-    function burn(address _voter, uint256 _voting_power) external onlyOwner {
+    function burn(address _voter, uint256 _voting_power) external {
+        /// removed onlyOwner modifier to be revisited
         _burn(_voter, _voting_power);
     }
 
