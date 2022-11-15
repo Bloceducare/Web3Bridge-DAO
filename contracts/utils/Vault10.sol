@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import {IERC20} from "../interfaces/IERC20.sol";
 
-contract Vault10 {
+contract vault10 {
     constructor(address _tokenContract, address _owner) {
         tokenContract = IERC20(_tokenContract);
         owner = _owner;
@@ -21,38 +21,26 @@ contract Vault10 {
 
     mapping(address => earlyPayment) EarlyPayers;
 
-    event NewDeposit(uint216 indexed amount);
-    event NewWithdrawal(address indexed account, uint216 share);
-    event NewPaidUser(address indexed user, uint8 number);
-
     function depositIntoVault(uint216 _amount) external {
         amountDepositedForSharing += _amount;
         IERC20(tokenContract).transferFrom(msg.sender, address(this), _amount);
-
-        // emit a log event when a deposit is made
-        emit NewDeposit(_amount);
     }
 
     function addAddressOfEarlyPayment() external {
         numberOfPaidUsers++;
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
-
-        // emit a log event when a new payee is added
-        emit NewPaidUser(msg.sender, numberOfPaidUsers);
     }
 
-    function withdrawShare(address _addr) external {
+    function withdrawShare() external {
+        require(withdrawTimeReached == true, "Vault not open");
         earlyPayment storage EP = EarlyPayers[msg.sender];
         assert(EP.withdrawn == false);
         uint216 share = individualShare();
         amountDepositedForSharing -= share;
         EP.withdrawn = true;
-        IERC20(tokenContract).transfer(_addr, share);
+        IERC20(tokenContract).transfer(msg.sender, share);
         numberOfPaidUsers--;
-
-        // emit a log event when a new withdrawal is made
-        emit NewWithdrawal(msg.sender, share);
     }
 
     function individualShare() private view returns (uint216 share) {
@@ -62,5 +50,13 @@ contract Vault10 {
     function openVault() public {
         assert(msg.sender == owner);
         withdrawTimeReached = true;
+    }
+
+    function returnVaultBalace() public view returns(uint216 vaultBalance) {
+        vaultBalance = amountDepositedForSharing;
+    }
+
+    function checkIfWithdrawTimeReached () public view returns(bool open) {
+        open = withdrawTimeReached;
     }
 }
