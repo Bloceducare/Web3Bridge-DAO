@@ -22,7 +22,7 @@ describe("Certificate", function () {
 
   /////////////////
 
-  describe("testing", function () {
+  describe("Certificate Token Test", function () {
     it("checks certificate contract is deployed successfully", async function () {
       const { Certificate } = await loadFixture(deploysCertificate);
       assert.ok(Certificate.address);
@@ -32,9 +32,11 @@ describe("Certificate", function () {
       const { Certificate, owner, add2, otherAccount } = await loadFixture(
         deploysCertificate
       );
+
       await Certificate.connect(owner).setMerkleRoot(
         "0x1ff77183e788ec49a77372b8a9b25d257f122d4b9a272d30059db58e0dbbae49"
       );
+
       const merkleRoot = await Certificate.merkle_root();
       assert.equal(
         merkleRoot,
@@ -50,7 +52,7 @@ describe("Certificate", function () {
       ];
 
       const { Certificate } = await loadFixture(deploysCertificate);
-      
+
       const checkIsWhitelisted = await Certificate.isWhitelisted(
         proofs,
         "0xe9707d0e6171f728f7473c24cc0432a9b07eaaf1efed6a137a4a8c12c79552d9"
