@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IHasPaid} from "../interfaces/IHasPaid.sol";
 
 contract Certificate is ERC721, ERC721URIStorage, Ownable {
-    bytes32 merkle_root;
+    bytes32 public merkle_root; // I change the visibility of this variable to public so I can call it in my test file.
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
