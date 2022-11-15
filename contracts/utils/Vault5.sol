@@ -41,7 +41,7 @@ contract Vault5 {
         // emit a log event when a new payee is added
         emit NewPaidUser(msg.sender, numberOfPaidUsers);
     }
- 
+
     function withdrawShare (address _addr) external {
         earlyPayment storage EP = EarlyPayers[msg.sender];
         assert(EP.withdrawn == false);
@@ -56,13 +56,11 @@ contract Vault5 {
     }
 
     function individualShare () private view returns (uint216 share){
-       share =  amountDepositedForSharing / numberOfPaidUsers;
-    } 
+        share = amountDepositedForSharing / numberOfPaidUsers;
+    }
 
     function openVault () public {
         assert(msg.sender == owner);
         withdrawTimeReached = true;
     }
-
-    
 }

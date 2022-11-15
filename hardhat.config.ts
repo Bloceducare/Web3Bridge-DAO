@@ -7,6 +7,7 @@ import "@nomiclabs/hardhat-etherscan";
 require("hardhat-contract-sizer");
 require("dotenv").config();
 require("solidity-coverage");
+require("hardhat-tracer");
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -28,13 +29,6 @@ module.exports = {
     localhost: {
       timeout: 8000000,
     },
-    kovan: {
-      url: process.env.KOVAN_URL,
-      accounts: [process.env.SECRET],
-      blockGasLimit: 200000000000,
-      gasPrice: 10000000000,
-      timeout: 90000,
-    },
   },
   gasReporter: {
     currency: "USD",
@@ -50,7 +44,7 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.4",
+        version: "0.8.9",
         settings: {
           optimizer: {
             enabled: true,
