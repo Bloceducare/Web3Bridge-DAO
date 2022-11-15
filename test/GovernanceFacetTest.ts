@@ -209,7 +209,7 @@ describe("GovenanceFacet", function () {
       expect(getVoters2.length).to.equal(1);
     });
 
-    it("should create a proposal and ensure proposalCount increased", async function () {
+    it("should revert when voted on a cancelled proposal", async function () {
       const { diamond, daotoken, certificate, owner } = await loadFixture(
         deploysGovernanceFacet
       );

@@ -17,14 +17,14 @@ describe("CertificateFactoryFacet", function () {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
-     // deploying Certificate contract
-     const Certificate = await ethers.getContractFactory("MockCertificate");
-     const certificate = await Certificate.deploy();
- 
-     // deploying DAO token contract
-     const DAOtoken = await ethers.getContractFactory("DAOtoken");
-     const daotoken = await DAOtoken.deploy(certificate.address);
- 
+    // deploying Certificate contract
+    const Certificate = await ethers.getContractFactory("MockCertificate");
+    const certificate = await Certificate.deploy();
+
+    // deploying DAO token contract
+    const DAOtoken = await ethers.getContractFactory("DAOtoken");
+    const daotoken = await DAOtoken.deploy(certificate.address);
+
     // deploy DiamondCutFacet
     const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
     const diamondCutFacet = await DiamondCutFacet.deploy();
@@ -56,7 +56,7 @@ describe("CertificateFactoryFacet", function () {
       "DiamondLoupeFacet",
       "OwnershipFacet",
       "TipsTokenFactoryFacet",
-      "CertificateFactoryFacet"
+      "CertificateFactoryFacet",
     ];
     const cut = [];
     for (const FacetName of FacetNames) {
@@ -97,22 +97,20 @@ describe("CertificateFactoryFacet", function () {
 
   //////////////////////
 
-  describe("Testing the CertificateFactoryFacet fuctions", function () {
-    it("Should deploy certificate contract", async function() {
-        const { diamond } = await loadFixture(deploysCertificateFactoryFacet);
+  describe("Testing the CertificateFactoryFacet functions", function () {
+    it("Should deploy certificate contract", async function () {
+      const { diamond } = await loadFixture(deploysCertificateFactoryFacet);
 
-        const name = "Web3BridgeCohortVIII Certificate";
-        const symbol = "W3BCohortVII"
+      const name = "Web3BridgeCohortVIII Certificate";
+      const symbol = "W3BCohortVII";
 
-        const certificateFactory = await ethers.getContractAt(
-            "CertificateFactoryFacet",
-            diamond.address
-        );
-        const deployer = await certificateFactory.depolyCertificate(name, symbol);
-        
-        await expect(deployer)
-        .to.emit(certificateFactory, "CertificateDeployed");
-    })
+      const certificateFactory = await ethers.getContractAt(
+        "CertificateFactoryFacet",
+        diamond.address
+      );
+      const deployer = await certificateFactory.depolyCertificate(name, symbol);
+
+      await expect(deployer).to.emit(certificateFactory, "CertificateDeployed");
+    });
   });
-
 });
