@@ -21,15 +21,25 @@ contract Vault5 {
 
     mapping (address => earlyPayment) EarlyPayers;
 
+    event NewDeposit(uint216 indexed amount);
+    event NewWithdrawal(address indexed account, uint216 share);
+    event NewPaidUser(address indexed user, uint8 number);
+
     function depositIntoVault (uint216 _amount) external {
         amountDepositedForSharing += _amount;
         IERC20(tokenContract).transferFrom(msg.sender, address(this), _amount);
+
+         // emit a log event when a deposit is made
+        emit NewDeposit(_amount);
     }
 
     function addAddressOfEarlyPayment () external {
         numberOfPaidUsers++;
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
+
+        // emit a log event when a new payee is added
+        emit NewPaidUser(msg.sender, numberOfPaidUsers);
     }
 
     function withdrawShare (address _addr) external {
@@ -40,6 +50,9 @@ contract Vault5 {
         EP.withdrawn = true;
         IERC20(tokenContract).transfer(_addr, share);
         numberOfPaidUsers--;
+
+        // emit a log event when a new withdrawal is made
+        emit NewWithdrawal(msg.sender, share);
     }
 
     function individualShare () private view returns (uint216 share){
