@@ -13,7 +13,7 @@ describe("Vault10", function () {
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
 
-    const Vault10 = await ethers.getContractFactory("vault10");
+    const Vault10 = await ethers.getContractFactory("Vault10");
     const vault10 = await Vault10.deploy(token.address, owner.address);
 
     return { owner, student1, student2, token, vault10 };

@@ -24,6 +24,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     // EVENTS
     // ===========================
     event AdminMint(address to);
+    event TokenClaimed(address indexed _address, uint256 _value);
 
     // ===========================
     // STATE VARIABLE
@@ -37,6 +38,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     uint40 additionalTime;
     address vault10;
     address vault5_;
+    address erc2oToken;
     address diamond;
 
     struct StudentDetails {
@@ -46,7 +48,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         uint40 timeOfLastPayment;
     }
 
-    mapping(address => StudentDetails) studentDetails;
+    mapping(address => StudentDetails) public studentDetails;
 
     /// @param _admin: this would be the address that would be handling admin opeartions
     /// @param _vault10: this is the address this would be
@@ -54,11 +56,13 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         address _admin,
         address _vault10,
         address _vault5,
+        address _erc20Token,
         address _diamond
     ) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
+        erc2oToken = _erc20Token;
         diamond = _diamond;
     }
 
@@ -84,7 +88,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @dev A function for student's payment
     /// @notice A seperate function is created for fee payment in other allow installmental payment
-    function payFee(uint256 _stableAmount, bytes32[] calldata _merkleProof) public {
+    function payFee(uint256 _stableAmount, bytes32[] calldata _merkleProof) public payable {
         StudentDetails storage sd = studentDetails[msg.sender];
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         if (MerkleProof.verify(_merkleProof, merkleRoot, leaf) && block.timestamp < additionalTime) {
@@ -119,13 +123,18 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
             if (sd.timeOfLastPayment < elapsedTime) {
                 _mint(msg.sender, 2e18);
                 sd.tokenRecieved = 2;
+                emit TokenClaimed(msg.sender, sd.tokenRecieved);
+
             } else if (sd.timeOfLastPayment > elapsedTime) {
                 _mint(msg.sender, 1e18);
                 sd.tokenRecieved = 1;
+                emit TokenClaimed(msg.sender, sd.tokenRecieved);
+                
             }
         }
 
         sd.claimed = true;
+        
     }
 
     function updateAdmin(address newAdmin) internal {

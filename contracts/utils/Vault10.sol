@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import {IERC20} from "../interfaces/IERC20.sol";
 
-contract vault10 {
+contract Vault10 {
     constructor(address _tokenContract, address _owner) {
         tokenContract = IERC20(_tokenContract);
         owner = _owner;
