@@ -33,7 +33,7 @@ contract TipsToken is ERC20 {
     function mintToken(bytes32[] calldata _merkleProof) public {
         bool stat = whitelistMint(_merkleProof);
         require(stat, "Invaild Proof");
-        _mint(msg.sender, 2e18);
+        _mint(msg.sender, NumOfTokensToMint);
         studentClaimed[msg.sender] = true;
     }
 
@@ -45,6 +45,14 @@ contract TipsToken is ERC20 {
     function setNumberOfTokensToMint(uint216 _NumOfTokensTMint) external {
         assert(msg.sender == owner);
         NumOfTokensToMint = _NumOfTokensTMint;
+    }
+
+    function returnMerkelRoot() external view returns( bytes32 root) {
+        root = merkleRoot;
+    }
+
+    function returnNumOftoken() external view returns(uint216 tobeMinted) {
+        tobeMinted = NumOfTokensToMint;
     }
 
     function name() public view virtual override returns (string memory) {
