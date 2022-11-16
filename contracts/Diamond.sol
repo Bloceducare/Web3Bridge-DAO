@@ -18,7 +18,8 @@ contract Diamond {
     constructor(
         address _contractOwner,
         address _diamondCutFacet,
-        address _daoToken
+        address _daoToken,
+        address _pre_cert_token
     ) payable {
         LibDiamond.setContractOwner(_contractOwner);
 
@@ -30,6 +31,7 @@ contract Diamond {
         LibDiamond.diamondCut(cut, address(0), "");
 
         states.admin = _contractOwner;
+        LibDiamond.set_pre_certificate_token_address(_pre_cert_token);
         states.daoToken = _daoToken;
     }
 
