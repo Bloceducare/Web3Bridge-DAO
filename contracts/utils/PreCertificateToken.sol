@@ -37,7 +37,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     uint40 additionalTime;
     address vault10;
     address vault5_;
-    address vault5__;
     address diamond;
 
     struct StudentDetails {
@@ -55,13 +54,11 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         address _admin,
         address _vault10,
         address _vault5,
-        address _vault5__,
         address _diamond
     ) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
-        vault5__ = _vault5__;
         diamond = _diamond;
     }
 
