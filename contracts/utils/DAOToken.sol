@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import {IERC20} from "../interfaces/IERC20.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+
 
 /// @title Web3DAO-Token Implmentartion Contract
 /// @notice this contract will be called anytime a session is started and last thoroughout the duration of that session.
@@ -32,6 +34,8 @@ contract DAOtoken is IERC20 {
 
     bool private _enableMinting;
 
+    bytes32 public merkle_root; 
+
     /**
      * ===================================================
      * ----------------- MODIFIERS -----------------------
@@ -49,9 +53,8 @@ contract DAOtoken is IERC20 {
      * ===================================================
      */
 
-    constructor(address _nftaddress) {
+    constructor() {
         _owner = msg.sender;
-        nftcetificate = IERC20(_nftaddress);
     }
 
     function name() public view returns (string memory) {
@@ -74,6 +77,11 @@ contract DAOtoken is IERC20 {
         return _balances[account];
     }
 
+    // to change the merkleroot hash and can be called by onlyowner
+    function setMerkleRoot(bytes32 root) external onlyOwner {
+        merkle_root = root;
+    }
+
     //sets the amount to be minted for each members
     function setMintAmountPerPerson(uint256 newamount) public onlyOwner {
         _mintAmountperPerson = newamount;
@@ -90,7 +98,7 @@ contract DAOtoken is IERC20 {
     }
 
     /// @notice sets the owner to a new one
-    /// @dev NOTE this script must transfer ownership immedately after deployment
+    /// @dev NOTE this script must transfer ownership imedately after deployment
     function setNewOwner(address newOwner) public onlyOwner {
         _owner = newOwner;
     }
@@ -173,8 +181,10 @@ contract DAOtoken is IERC20 {
     }
 
     //the mint tokens to an address should have certificate nft before minting
-    function _mint() internal virtual {
-        require(nftcetificate.balanceOf(msg.sender) >= 1, "not a member");
+    function _mint(bytes32[] memory proof) internal virtual {
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        bool verified = MerkleProof.verify(proof, merkle_root, leaf);
+        require(verified, "you are not included for minting");
         uint256 _amount = _mintAmountperPerson * 1e18;
         _totalSupply += _amount;
         _balances[msg.sender] += _amount;
@@ -183,20 +193,21 @@ contract DAOtoken is IERC20 {
         _afterTokenTransfer(address(0), msg.sender, _amount);
     }
 
-    function mint() external {
+    function mint(bytes32[] memory proof) external {
         require(_enableMinting, "session has not ended");
         uint256 accountBalance = _balances[msg.sender];
-        require(accountBalance <= 0, "old tokens burn needed");
-        _burn(msg.sender, accountBalance);
-
-        _mint();
+        if(accountBalance > 0){
+            _burn(msg.sender, accountBalance);
+        }
+        _mint(proof);
     }
 
     /// @dev the diamond would be able to burn users token during voting
     /// @notice this function would be used to burn DAO token from a percified user address
     /// @param _voter: this is the address that the burn would happen to
     /// @param _voting_power: this is the is the amount of power(token) this user is willing use for this vote
-    function burn(address _voter, uint256 _voting_power) external onlyOwner {
+    function burn(address _voter, uint256 _voting_power) external {
+        /// removed onlyOwner modifier to be revisited
         _burn(_voter, _voting_power);
     }
 

@@ -64,7 +64,7 @@ describe("DAOtoken", function () {
       await daotoken.setMintAmountPerPerson("30")       
       await daotoken.enableMinting(true)       
       await daotoken.mint(hexProof);
-      const balance = ethers.utils.parseEther("0")
+      const balance = ethers.utils.parseEther("30")
       expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
       await daotoken.mint(hexProof);
       expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
