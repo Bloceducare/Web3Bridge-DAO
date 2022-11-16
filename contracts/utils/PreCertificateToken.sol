@@ -67,7 +67,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @notice this function can only be called by the admin
     function setFee(
-        uint256 _amount,
+        uint40 _amount,
         bytes32 _merkleRoot,
         IERC20 _USDTContractAddr,
         uint40 _elapsedTime,
@@ -87,7 +87,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @dev A function for student's payment
     /// @notice A seperate function is created for fee payment in other allow installmental payment
-    function payFee(uint256 _stableAmount, bytes32[] calldata _merkleProof) public {
+    function payFee(uint40 _stableAmount, bytes32[] calldata _merkleProof) public {
         StudentDetails storage sd = studentDetails[msg.sender];
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         if (MerkleProof.verify(_merkleProof, merkleRoot, leaf) && block.timestamp < additionalTime) {

@@ -52,11 +52,11 @@ contract vault10 {
         withdrawTimeReached = true;
     }
 
-    function returnVaultBalace() public view returns (uint216 vaultBalance) {
+    function returnVaultBalace() public view returns(uint216 vaultBalance) {
         vaultBalance = amountDepositedForSharing;
     }
 
-    function checkIfWithdrawTimeReached() public view returns (bool open) {
+    function checkIfWithdrawTimeReached () public view returns(bool open) {
         open = withdrawTimeReached;
     }
 }
