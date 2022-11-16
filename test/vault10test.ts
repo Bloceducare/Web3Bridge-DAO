@@ -24,17 +24,22 @@ describe("Vault10", function () {
       const { owner, student1, student2, token, vault10 } = await loadFixture(
         deploysVaultAndToken
       );
+
       const depositValue = ethers.utils.parseEther("20000");
+
       await token
         .connect(owner)
         .mint(owner.address, ethers.utils.parseEther("200000"));
+
       const balanceOfOwner = await token
         .connect(owner)
         .balanceOf(owner.address);
       console.log("Owner balance is", balanceOfOwner.toString());
+
       await token
         .connect(owner)
         .approve(vault10.address, ethers.utils.parseEther("100000000000"));
+
       await vault10.connect(owner).depositIntoVault(depositValue);
       expect(await vault10.returnVaultBalace()).to.equal(depositValue);
     });
@@ -47,9 +52,11 @@ describe("Vault10", function () {
 
       const depositValue = ethers.utils.parseEther("20000");
       await token.mint(owner.address, ethers.utils.parseEther("200000"));
+
       await token
         .connect(owner)
         .approve(vault10.address, ethers.utils.parseEther("100000000000"));
+
       await vault10.connect(owner).depositIntoVault(depositValue);
       await vault10.connect(owner).openVault();
 
