@@ -24,10 +24,11 @@ describe("PreCertificateToken", function () {
     const contractOwner = accounts[0];
     const [owner, address1, address2, address3, address4, address5, address6, address7, address8, ] = await ethers.getSigners();
     
-    //deploying Vault5 contract
+    //deploying erc20 contract
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
 
+    //deploying Vault5 contract
     const Vault5 = await ethers.getContractFactory("Vault5");
     const vault5 = await Vault5.deploy(token.address, owner.address);
 
