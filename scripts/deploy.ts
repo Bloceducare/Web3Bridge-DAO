@@ -37,7 +37,7 @@ export async function deployDiamond() {
 
   // deploy pre certificate token
   const PreCert = await ethers.getContractFactory("PreCertificateToken");
-  const preCert = await PreCert.deploy(contractOwner, vault10.address, );
+  const preCert = await PreCert.deploy(contractOwner.address, vault10.address, vault5.address, DAO_TRESURY);
   await preCert.deployed();
   console.log("Deployed Pre Certificate token: ", preCert.address);
 
@@ -53,6 +53,7 @@ export async function deployDiamond() {
   const diamond = await Diamond.deploy(
     contractOwner.address,
     diamondCutFacet.address,
+    _DAOToken.address,
     preCert.address
   );
   await diamond.deployed();
@@ -72,7 +73,7 @@ export async function deployDiamond() {
   // deploy facets
   console.log("");
   console.log("Deploying facets");
-  const FacetNames = ["DiamondLoupeFacet", "OwnershipFacet"];
+  const FacetNames = ["DiamondLoupeFacet", "OwnershipFacet", "AdminOpsFacet", "CertificateFactoryFacet", "GovernanceFacet", "TipsTokenFactoryFacet"];
   const cut = [];
   for (const FacetName of FacetNames) {
     const Facet = await ethers.getContractFactory(FacetName);

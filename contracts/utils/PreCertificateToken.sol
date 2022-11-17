@@ -38,7 +38,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     uint40 additionalTime;
     address vault10;
     address vault5_;
-    address erc2oToken;
+    address vault5_doa;
     address diamond;
 
     struct StudentDetails {
@@ -51,19 +51,17 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     mapping(address => StudentDetails) public studentDetails;
 
     /// @param _admin: this would be the address that would be handling admin opeartions
-    /// @param _vault10: this is the address this would be
+    /// @param _vault10: this is the address this would be 
     constructor(
         address _admin,
         address _vault10,
         address _vault5,
-        address _erc20Token,
-        address _diamond
+        address _vault5_doa
     ) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
-        erc2oToken = _erc20Token;
-        diamond = _diamond;
+        vault5_doa = _vault5_doa;
     }
 
     /// @notice this function can only be called by the admin
@@ -167,5 +165,13 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         _mint(msg.sender, 1e18);
 
         emit AdminMint(_to);
+    }
+
+    function set_diamond(address _addr) external {
+        if (msg.sender == admin) {
+            revert notAdmin("Not an Admin");
+        }
+
+        diamond = _addr;
     }
 }
