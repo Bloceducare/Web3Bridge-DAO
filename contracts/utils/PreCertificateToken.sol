@@ -168,7 +168,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     function set_diamond(address _addr) external {
-        if (msg.sender == admin) {
+        if (msg.sender != admin) {
             revert notAdmin("Not an Admin");
         }
 
