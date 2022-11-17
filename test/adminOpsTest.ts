@@ -69,11 +69,9 @@ import {
         expect(black_status).to.be.equal(true);
       });
   
-      // it("mint_pre_cert_token", async function () {
-      //   const { adminOps, addr1 } = await loadFixture(deployAdmin);
-      //   await adminOps.mint_pre_cert_token(addr1.address);
-      // });
+      it("mint_pre_cert_token", async function () {
+        const { adminOps, addr1 } = await loadFixture(deployAdmin);
+        await adminOps.mint_pre_cert_token(addr1.address);
+      });
     });
-  
-  
   });
