@@ -43,7 +43,7 @@ describe("PreCertificateToken", function () {
 
     // deploying DAO token contract
     const DAOtoken = await ethers.getContractFactory("DAOtoken");
-    const daotoken = await DAOtoken.deploy(certificate.address);
+    const daotoken = await DAOtoken.deploy();
 
     // deploy DiamondCutFacet
     const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
@@ -56,6 +56,7 @@ describe("PreCertificateToken", function () {
     const diamond = await Diamond.deploy(
       contractOwner.address,
       diamondCutFacet.address,
+      daotoken.address,
       daotoken.address
     );
     await diamond.deployed();
@@ -112,7 +113,7 @@ describe("PreCertificateToken", function () {
     DiamondAddress = diamond.address;
 
     const PrCertificate = await ethers.getContractFactory("PreCertificateToken");
-    const precertificate = await PrCertificate.deploy(owner.address,vault10.address,vault5.address,token.address,diamond.address);
+    const precertificate = await PrCertificate.deploy(owner.address,vault10.address,vault5.address,token.address);
 
     console.log("PreCertificateToken Deployed Here:", precertificate.address);
 

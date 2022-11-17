@@ -63,10 +63,10 @@ import {
     describe("mint_pre_cert_token", function () {
       it("blacklist address", async function () {
         const { adminOps, addr1 } = await loadFixture(deployAdmin);
-        // await adminOps.blacklist_address(addr1.address);
-        // let black_status = await adminOps.is_blacklisted(addr1.address);
-        // console.log("black_status", black_status);
-        // expect(black_status).to.be.equal(true);
+        await adminOps.blacklist_address(addr1.address);
+        let black_status = await adminOps.is_blacklisted(addr1.address);
+        console.log("black_status", black_status);
+        expect(black_status).to.be.equal(true);
       });
   
       // it("mint_pre_cert_token", async function () {
