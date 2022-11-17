@@ -8,6 +8,7 @@ import { DiamondCutFacet } from "../typechain-types";
 import { getSelectors, FacetCutAction } from "./libraries/diamond";
 
 export let DiamondAddress: string;
+export let DAO_TOKEN: any;
 
 export async function deployDiamond() {
   const accounts = await ethers.getSigners();
@@ -45,6 +46,8 @@ export async function deployDiamond() {
   const DAOToken = await ethers.getContractFactory("DAOtoken");
   const _DAOToken = await DAOToken.deploy();
   await _DAOToken.deployed();
+
+  DAO_TOKEN = _DAOToken;
 
 
 
