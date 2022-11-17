@@ -47,6 +47,7 @@ export async function deployDiamond() {
   await _DAOToken.deployed();
 
 
+
   // deploy Diamond
   const Diamond = await ethers.getContractFactory("Diamond");
   const diamond = await Diamond.deploy(
@@ -56,6 +57,9 @@ export async function deployDiamond() {
   );
   await diamond.deployed();
   console.log("Diamond deployed:", diamond.address);
+
+  // transferring ownership of DAOToken to the diamond 
+  await _DAOToken.setDiamondAddress(diamond.address);
 
   // deploy DiamondInit
   // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
