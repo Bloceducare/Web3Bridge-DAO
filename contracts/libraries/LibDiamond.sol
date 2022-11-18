@@ -253,4 +253,9 @@ library LibDiamond {
     function is_blicklisted(address _addr) internal view returns(bool is_blacklisted_) {
         is_blacklisted_ = diamondStorage().is_blacklisted[_addr];
     }
+
+    function set_pre_certificate_token_address(address _addr) internal {
+        enforceIsContractOwner();
+        diamondStorage().pre_certificate_token = _addr;
+    }
 }

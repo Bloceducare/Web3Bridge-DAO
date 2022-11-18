@@ -23,7 +23,7 @@ describe("TipsTokenFactory", function () {
  
      // deploying DAO token contract
      const DAOtoken = await ethers.getContractFactory("DAOtoken");
-     const daotoken = await DAOtoken.deploy(certificate.address);
+     const daotoken = await DAOtoken.deploy();
  
     // deploy DiamondCutFacet
     const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
@@ -36,6 +36,7 @@ describe("TipsTokenFactory", function () {
     const diamond = await Diamond.deploy(
       contractOwner.address,
       diamondCutFacet.address,
+      daotoken.address,
       daotoken.address
     );
     await diamond.deployed();
