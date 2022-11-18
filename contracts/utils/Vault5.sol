@@ -42,13 +42,13 @@ contract Vault5 {
         emit NewPaidUser(msg.sender, numberOfPaidUsers);
     }
 
-    function withdrawShare (address _addr) external {
+    function withdrawShare () external {
         earlyPayment storage EP = EarlyPayers[msg.sender];
         assert(EP.withdrawn == false);
         uint216 share = individualShare();
         amountDepositedForSharing -= share;
         EP.withdrawn = true;
-        IERC20(tokenContract).transfer(_addr, share);
+        IERC20(tokenContract).transfer(msg.sender, share);
         numberOfPaidUsers--;
 
         // emit a log event when a new withdrawal is made
@@ -62,5 +62,13 @@ contract Vault5 {
     function openVault () public {
         assert(msg.sender == owner);
         withdrawTimeReached = true;
+    }
+
+       function returnVaultBalace() public view returns(uint216 vaultBalance) {
+        vaultBalance = amountDepositedForSharing;
+    }
+
+    function checkIfWithdrawTimeReached () public view returns(bool open) {
+        open = withdrawTimeReached;
     }
 }
