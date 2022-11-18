@@ -34,7 +34,7 @@ contract Vault5 {
     }
 
     function addAddressOfEarlyPayment () external {
-        numberOfPaidUsers++;
+        numberOfPaidUsers+1;
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
 
