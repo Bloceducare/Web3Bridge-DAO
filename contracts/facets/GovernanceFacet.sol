@@ -18,19 +18,12 @@ contract GovernanceFacet {
     error proposalIsCancelled();
     error noZeroAddressAllowed();
     error invalidProposal();
-    error votingAlreadyStarted(string);
-    error proposalEnded();
-    error zeroValueNotAllowed();
-    error maxVoteWeightNotSet();
-    error voteWeightRangeExceeded();
 
     /// Events
     event ProposalCreated(string indexed name, uint256 indexed endTime);
     event ProposalCancelled(uint256 indexed _proposalID);
     event proposalVoted(uint256 indexed proposalID, uint256 indexed voteType, uint256 indexed voteWeight);
     event adminChanged(address newAdmin);
-    event proposalEndTimeExtended(uint proposalID, uint newTime);
-    event maxVoteWeightChanged(uint8 maxVoteWeight);
 
     /// @dev this function creates a proposal
     /// only an admin of the contract can create proposals
@@ -55,7 +48,6 @@ contract GovernanceFacet {
 
     /// @dev this function is used to cancel a proposal, given a proposalID
     /// only an admin of the contract can cancel proposals
-    /// proposal can only be cancelled if voting hasn't started on that proposal
     function cancelProposal(uint256 _proposalID) external {
         if (msg.sender != states.admin) {
             revert notAdmin("only admin required");
@@ -63,47 +55,9 @@ contract GovernanceFacet {
         if (states.proposals[_proposalID].cancelled == true) {
             revert proposalAlreadyCancelled();
         }
-        if (states.proposals[_proposalID].voteCount > 0) {
-            revert votingAlreadyStarted("Can't cancel an active proposal");
-        }
-
         states.proposals[_proposalID].cancelled = true;
 
         emit ProposalCancelled(_proposalID);
-    }
-
-    /// @dev this function is used to extend the endTime of a proposal provided the previous endTime
-    /// is not reach. Once the previous endTime is reach, it is said that the proposal has already ended
-    function extendProposalEndTime(uint256 _proposalID, uint256 _newEndTime) external {
-        if (msg.sender != states.admin) {
-            revert notAdmin("only admin required");
-        }
-        if (block.timestamp > states.proposals[_proposalID].endTime) {
-            revert proposalEnded();
-        }
-        if (_newEndTime < block.timestamp) {
-            revert invalidTime("invalid end time");
-        }
-
-        states.proposals[_proposalID].endTime = _newEndTime;
-
-        emit proposalEndTimeExtended(_proposalID, _newEndTime);
-    }
-
-    function setMaxVoteWeight(uint8 _maxVoteWeight) external {
-        if (msg.sender != states.admin) {
-            revert notAdmin("only admin required");
-        }
-        if (_maxVoteWeight <= 0) {
-            revert zeroValueNotAllowed();
-        }
-        states.maxVoteWeight = _maxVoteWeight;
-        emit maxVoteWeightChanged(_maxVoteWeight);
-    }
-
-    /// @dev this function returns the maxVoteWeight
-    function getMaxVoteWeight() external view returns (uint8 maxVoteWeight__) {
-        maxVoteWeight__ = states.maxVoteWeight;
     }
 
     /// @dev this function returns all created proposals
@@ -133,28 +87,16 @@ contract GovernanceFacet {
     /// users can only vote with a DAO token, and this token is burnt when user votes.
     /// the number of token burrnt is equivalent to the voteWeight a user used for voting.
     /// User can only vote once
-    function voteProposal(uint256 _proposalID, uint256 _voteType, uint256 _voteWeight) external {
-        // check if proposal is cancelled
+    function voteProposal(
+        uint256 _proposalID,
+        uint256 _voteType,
+        uint256 _voteWeight
+    ) external {
         if (states.proposals[_proposalID].cancelled == true) {
             revert proposalIsCancelled();
         }
-        // check if proposal has ended (using the endTime and current time)
-        if (block.timestamp > states.proposals[_proposalID].endTime) {
-            revert proposalEnded();
-        }
-        // check if this user has already voted for same proposal
         if (states.voted[msg.sender][_proposalID] == true) {
             revert alreadyVoted();
-        }
-        // check if maxVoteWeight is set
-        if (states.maxVoteWeight <= 0) {
-            revert maxVoteWeightNotSet();
-        }
-        if (_voteWeight <= 0) {
-            revert zeroValueNotAllowed();
-        }
-        if (_voteWeight > states.maxVoteWeight) {
-            revert voteWeightRangeExceeded();
         }
         if (IDAOToken(states.daoToken).balanceOf(msg.sender) < _voteWeight) {
             revert insufficientToken();
