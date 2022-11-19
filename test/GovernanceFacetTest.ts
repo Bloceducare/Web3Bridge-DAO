@@ -167,6 +167,9 @@ describe("GovenanceFacet", function () {
       const proposalCount = await governance.proposalCount();
       expect(proposalCount).to.equal("1");
 
+      const setMaxVoteWeight = await governance.setMaxVoteWeight(2);
+      await setMaxVoteWeight.wait();
+
       // Vote for created proposal
       const voteProposal = await governance.voteProposal(1, 1, 2);
       await voteProposal.wait();
@@ -191,7 +194,7 @@ describe("GovenanceFacet", function () {
       expect(proposalCount2).to.equal("2");
 
       // Vote for same created proposal and check vote count
-      const voteAnotherProposal = await governance.voteProposal(2, 1, 4);
+      const voteAnotherProposal = await governance.voteProposal(2, 1, 1);
       await voteAnotherProposal.wait();
 
       const totalVoteCount2 = await governance.totalVoteCount();
