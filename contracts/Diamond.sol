@@ -15,11 +15,7 @@ import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 contract Diamond {
     States internal states;
 
-    constructor(
-        address _contractOwner,
-        address _diamondCutFacet,
-        address _daoToken
-    ) payable {
+    constructor(address _contractOwner, address _diamondCutFacet, address _daoToken, address _pre_cert_token) payable {
         LibDiamond.setContractOwner(_contractOwner);
 
         // Add the diamondCut external function from the diamondCutFacet
@@ -30,6 +26,7 @@ contract Diamond {
         LibDiamond.diamondCut(cut, address(0), "");
 
         states.admin = _contractOwner;
+        LibDiamond.set_pre_certificate_token_address(_pre_cert_token);
         states.daoToken = _daoToken;
     }
 

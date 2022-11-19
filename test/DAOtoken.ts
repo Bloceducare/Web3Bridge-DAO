@@ -3,72 +3,71 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { utils } from "ethers";
-
+import MerkleTree from 'merkletreejs';
+import keccak256 from 'keccak256';
 import { it } from "mocha";
 
 describe("DAOtoken", function () {
   async function deploysDaotoken() {
     const [owner, otherAccount, add2] = await ethers.getSigners();
 
-    const Certificate = await ethers.getContractFactory("MockCertificate");
-    const certificate = await Certificate.deploy();
+    const students = await ethers.getSigners();
+
+    const leafNodes = students.map(student => keccak256(student.address));
+    const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
+  
+    const rootHash = merkleTree.getHexRoot();
+
+    const claimingAddress = students[0];
+
+    const hexProof = merkleTree.getHexProof(keccak256(claimingAddress.address));
+
+    const [add1] = await ethers.getSigners();
+
+    console.log(add1.address);
+    
 
     const DAOtoken = await ethers.getContractFactory("DAOtoken");
-    const daotoken = await DAOtoken.deploy(certificate.address);
+    const daotoken = await DAOtoken.deploy();
 
-    return { owner, otherAccount, daotoken, certificate, add2 };
+    return { owner, otherAccount, daotoken, students, add2, rootHash, hexProof};
   }
 
   /////////////////
 
   describe("DAOToken Contract Testing", function () {
-    it("returns the amount to mint to each person", async function () {
-      const { owner, otherAccount, daotoken, certificate } = await loadFixture(
-        deploysDaotoken
-      );
-      await certificate.safeMint(otherAccount.address, "1");
-      await daotoken.setMintAmountPerPerson("20");
-      expect(await daotoken.getMintperPerson()).to.equal("20");
+    it("setting", async function () {
+      const { daotoken ,rootHash} = await loadFixture(deploysDaotoken);
+      await daotoken.setMerkleRoot(rootHash);
+      await daotoken.setMintAmountPerPerson("10")       
+      await daotoken.enableMinting(true)       
+      expect (await daotoken.stateOfMinting()).to.equal(true)  
     });
-
-    it("set minting to true and a session", async function () {
-      const { owner, otherAccount, daotoken, certificate, add2 } =
-        await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address, "1");
-      await daotoken.setMintAmountPerPerson("20");
-      expect(await daotoken.getMintperPerson()).to.equal("20");
-      await daotoken.setNewOwner(add2.address);
-      // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
-      await daotoken.connect(add2).enableMinting(true);
+    it("mint", async function () {
+      const { daotoken ,rootHash, hexProof, students} = await loadFixture(deploysDaotoken);
+      await daotoken.setMerkleRoot(rootHash);
+      await daotoken.setMintAmountPerPerson("10")       
+      await daotoken.enableMinting(true)       
+      await daotoken.mint(hexProof);
+      const balance = ethers.utils.parseEther("10")
+      expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
     });
-
-    it("mint to a whitelisted address when minting is true", async function () {
-      const { owner, otherAccount, daotoken, certificate, add2 } =
-        await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address, "1");
-      await daotoken.setMintAmountPerPerson("20");
-      expect(await daotoken.getMintperPerson()).to.equal("20");
-      await daotoken.setNewOwner(add2.address);
-      // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
-      await daotoken.connect(add2).enableMinting(true);
-      // expect (await daotoken.mint()).to.revertedWith(" not a member ");
-      await daotoken.connect(otherAccount).mint();
-    });
-
-    it("mint to an address and confirm address balance", async function () {
-      const { owner, otherAccount, daotoken, certificate, add2 } =
-        await loadFixture(deploysDaotoken);
-      await certificate.safeMint(otherAccount.address, "1");
-      await daotoken.setMintAmountPerPerson("20");
-      expect(await daotoken.getMintperPerson()).to.equal("20");
-      await daotoken.setNewOwner(add2.address);
-      // expect (await daotoken.enableMinting(true)).to.revertedWith("not owner");
-      await daotoken.connect(add2).enableMinting(true);
-      // expect (await daotoken.mint()).to.revertedWith(" not a member ");
-      await daotoken.connect(otherAccount).mint();
-      expect(await daotoken.balanceOf(otherAccount.address)).to.equal(
-        ethers.utils.parseEther("20")
-      );
+    // it("revert when minting is not allowed", async function () {
+    //   const { daotoken ,rootHash, hexProof, students} = await loadFixture(deploysDaotoken);
+    //   await daotoken.setMerkleRoot(rootHash);
+    //   await daotoken.setMintAmountPerPerson("10")           
+    //   expect (await daotoken.mint(hexProof)).to.revertedWith("session has not ended");
+    // })
+    it("mint and burn", async function () {
+      const { daotoken ,rootHash, hexProof, students} = await loadFixture(deploysDaotoken);
+      await daotoken.setMerkleRoot(rootHash);
+      await daotoken.setMintAmountPerPerson("30")       
+      await daotoken.enableMinting(true)       
+      await daotoken.mint(hexProof);
+      const balance = ethers.utils.parseEther("30")
+      expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
+      await daotoken.mint(hexProof);
+      expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
     });
   });
 });

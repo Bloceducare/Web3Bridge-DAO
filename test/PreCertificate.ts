@@ -24,10 +24,11 @@ describe("PreCertificateToken", function () {
     const contractOwner = accounts[0];
     const [owner, address1, address2, address3, address4, address5, address6, address7, address8, ] = await ethers.getSigners();
     
-    //deploying Vault5 contract
+    //deploying erc20 contract
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
 
+    //deploying Vault5 contract
     const Vault5 = await ethers.getContractFactory("Vault5");
     const vault5 = await Vault5.deploy(token.address, owner.address);
 
@@ -43,7 +44,7 @@ describe("PreCertificateToken", function () {
 
     // deploying DAO token contract
     const DAOtoken = await ethers.getContractFactory("DAOtoken");
-    const daotoken = await DAOtoken.deploy(certificate.address);
+    const daotoken = await DAOtoken.deploy();
 
     // deploy DiamondCutFacet
     const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
@@ -56,6 +57,7 @@ describe("PreCertificateToken", function () {
     const diamond = await Diamond.deploy(
       contractOwner.address,
       diamondCutFacet.address,
+      daotoken.address,
       daotoken.address
     );
     await diamond.deployed();
@@ -112,7 +114,7 @@ describe("PreCertificateToken", function () {
     DiamondAddress = diamond.address;
 
     const PrCertificate = await ethers.getContractFactory("PreCertificateToken");
-    const precertificate = await PrCertificate.deploy(owner.address,vault10.address,vault5.address,token.address,diamond.address);
+    const precertificate = await PrCertificate.deploy(owner.address,vault10.address,vault5.address,token.address);
 
     console.log("PreCertificateToken Deployed Here:", precertificate.address);
 
