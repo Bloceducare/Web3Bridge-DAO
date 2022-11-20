@@ -1,57 +1,90 @@
-// import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-// import { expect } from "chai";
-// import { ethers } from "hardhat";
-// import { TipsTokenFactoryFacet__factory } from "../typechain-types";
+import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { utils } from "ethers";
 
-// describe("Vault5", function () {
-//     async function deployVault5Fixture() {
-//         const [owner, otherAccount] = await ethers.getSigners();
+import { it } from "mocha";
 
-//         const Token = await ethers.getContractFactory("Encore");
-//         const token = await Token.deploy();
+describe("Vault5", function () {
+  async function deploysVaultAndToken() {
+    const [admin, student1, student2] = await ethers.getSigners();
 
-//         const Vault5 = await ethers.getContractFactory("Vault5");
-//         const vault5 = await Vault5.deploy(token.address, owner.address);
+    const Token = await ethers.getContractFactory("VaultToken");
+    const token = await Token.deploy("Tether", "USDT");
 
-//         return { owner, otherAccount, vault5, token };
-//     }
+    const Vault5 = await ethers.getContractFactory("Vault5");
+    const vault5 = await Vault5.deploy(token.address, admin.address);
 
-//     describe("Unit testing for Vault5", function () {
 
-//         it("Deposit certain amount(10) to vault", async function () {
-//             // 1
-//             const { vault5, token } = await loadFixture(deployVault5Fixture);
-//             let amount = ethers.utils.parseEther("10");
-//             let increaseAmount = ethers.utils.parseEther("100");
-//             await token.increaseAllowance(vault5.address, increaseAmount);
-//             await vault5.depositIntoVault(amount, { gasLimit: 2e6 });
+    return { admin, student1, student2,  token, vault5 };
+  }
 
-//             expect(await token.balanceOf(vault5.address)).to.equal(ethers.utils.parseEther("10"));
-//         });
 
-//         it("testing NewDeposit event for addAddressOfEarlyPayment()", async () => {
-//             // 2
-//             const { vault5 } = await loadFixture(deployVault5Fixture);
-//             await expect(vault5.addAddressOfEarlyPayment())
-//                 .to.emit(vault5, "NewPaidUser")
-//                 .withArgs("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 1);
-//         });
+  
+  describe("Vault 5 Test", function () {
+    it("Ensure the admin have deposited in vault contract", async function () {
+      const {  admin, student1, student2,  token, vault5} = await loadFixture(
+        deploysVaultAndToken
+      );
+     const depositValue = ethers.utils.parseEther("20000")
+      await token.connect(admin).mint(admin.address, ethers.utils.parseEther("200000"))
+      const balanceOfadmin = await token.connect(admin).balanceOf(admin.address)
+      console.log("admin balance is", balanceOfadmin.toString())
+      await token.connect(admin).approve(vault5.address, ethers.utils.parseEther("100000000000"))
+      await vault5.connect(admin).depositIntoVault(depositValue)
+      expect(await vault5.returnVaultBalace()).to.equal(depositValue);
+    });
+    // Ensure that student cannot withdraw until the Vault is open
 
-//         it("testing NewWithdrawal event for withdrawShare", async function () {
-//             // 3
-//             const { vault5, token } = await loadFixture(deployVault5Fixture);
-          
+    it("Check if vault is open", async function () {
+        const {  admin, student1, student2,  token, vault5} = await loadFixture(
+            deploysVaultAndToken
+          );
 
-//         })
+      const depositValue = ethers.utils.parseEther("20000")
+      await token.mint(admin.address, ethers.utils.parseEther("200000"))
+      await token.connect(admin).approve(vault5.address, ethers.utils.parseEther("100000000000"))
+      await vault5.connect(admin).depositIntoVault(depositValue)
+      await vault5.connect(admin).openVault()
+      
+      expect(await vault5.checkIfWithdrawTimeReached()).to.equal(true)     
 
-//         // it("set withdrawTimeReached variable to 'true'", async function () {
-//         //     // 4
-//         //     const { vault5 } = await loadFixture(deployVault5Fixture);
-//         //     // getter for numberOfPaidUsers
-//         //     // const openVault = await vault5.withdrawTimeReached();
-//         //     // assert.equal(openVault, true);
-//         //     // await expect (vault5.openVault()).to.revertedWith("session has not ended");
-//         // });
-//     });
-// });
+    });
 
+    it("Ensure that student can withdraw just their share  ", async function () {
+      const {  admin, student1, student2,  token, vault5} = await loadFixture(
+        deploysVaultAndToken
+      );
+
+      const depositValue = ethers.utils.parseEther("20000")
+      await token.mint(admin.address, ethers.utils.parseEther("200000"))
+      await token.connect(admin).approve(vault5.address, ethers.utils.parseEther("100000000000"))
+      await vault5.connect(admin).depositIntoVault(depositValue)
+      await vault5.connect(admin).openVault()
+      await vault5.connect(student1).addAddressOfEarlyPayment()
+      await vault5.connect(student2).addAddressOfEarlyPayment()
+      await vault5.connect(student2).withdrawShare()
+      const student2bal = ethers.utils.parseEther("10000")
+      const bal = await (await token.balanceOf(student2.address)).toString()
+      console.log("this is the balance", bal)
+
+      expect(await token.balanceOf(student2.address)).to.equal(student2bal)   
+        });
+
+   
+  });
+
+
+  it("Test to ensure that only admin can open vault", async function () {
+    const {  admin, student1, student2,  token, vault5} = await loadFixture(
+        deploysVaultAndToken
+      );
+  await vault5.connect(admin).openVault()
+  expect(await vault5.checkIfWithdrawTimeReached()).to.equal(true)     
+
+});
+
+
+
+});
