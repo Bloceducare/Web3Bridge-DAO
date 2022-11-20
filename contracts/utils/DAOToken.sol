@@ -19,8 +19,6 @@ contract DAOtoken is IERC20 {
 
     mapping(address => uint256) private _balances;
 
-    mapping(address => mapping(address => uint256)) private _allowances;
-
     uint256 _totalSupply;
 
     string private _name = "Web3bridge DAO TOKEN";
@@ -91,6 +89,7 @@ contract DAOtoken is IERC20 {
 
     //sets the amount to be minted for each members
     function setMintAmountPerPerson(uint256 newamount) public onlyOwner {
+        require(newamount != 0, "cant zero for students");
         _mintAmountperPerson = newamount;
     }
 
