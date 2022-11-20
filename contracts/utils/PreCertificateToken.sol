@@ -52,12 +52,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @param _admin: this would be the address that would be handling admin operations
     /// @param _vault10: this is the address this would be
-    constructor(
-        address _admin,
-        address _vault10,
-        address _vault5,
-        address _vault5_dao
-    ) {
+    constructor(address _admin, address _vault10, address _vault5, address _vault5_dao) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
@@ -65,13 +60,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     /// @notice this function can only be called by the admin
-    function setFee(
-        uint256 _amount,
-        bytes32 _merkleRoot,
-        IERC20 _contractAddr,
-        uint40 _elapsedTime,
-        uint40 _additionalTime
-    ) public {
+    function setFee(uint256 _amount, bytes32 _merkleRoot, IERC20 _contractAddr, uint40 _elapsedTime, uint40 _additionalTime) public {
         if (msg.sender == admin) {
             cohortFee = _amount;
             merkleRoot = _merkleRoot;
@@ -85,11 +74,10 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     function changePaymentGateway(IERC20 _contractAddress) external {
-        if(msg.sender == admin) {
+        if (msg.sender == admin) {
             USDTContractAddr = _contractAddress;
-        }
-        else {
-            revert notAdmin("Only admin can change payment gateway")
+        } else {
+            revert notAdmin("Only admin can change payment gateway");
         }
     }
 
@@ -133,17 +121,14 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
                 _mint(msg.sender, 2e18);
                 sd.tokenRecieved = 2;
                 emit TokenClaimed(msg.sender, sd.tokenRecieved);
-
             } else if (sd.timeOfLastPayment > elapsedTime) {
                 _mint(msg.sender, 1e18);
                 sd.tokenRecieved = 1;
                 emit TokenClaimed(msg.sender, sd.tokenRecieved);
-
             }
         }
 
         sd.claimed = true;
-
     }
 
     function updateAdmin(address newAdmin) external {
@@ -158,11 +143,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     /// @param _receiver: this is the address that would be receiving the tokens
     /// @param _tokenContractAddress: this is the address of the erc 20 contract
     /// @param _amount: this is the amount of token the manager want to get out of this contract
-    function movingGeneric(
-        address _receiver,
-        address _tokenContractAddress,
-        uint256 _amount
-    ) public {
+    function movingGeneric(address _receiver, address _tokenContractAddress, uint256 _amount) public {
         if (msg.sender == admin) {
             revert notAdmin("Not an Admin");
         }
