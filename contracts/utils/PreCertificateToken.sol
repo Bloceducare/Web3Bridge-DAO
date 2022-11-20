@@ -38,7 +38,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     uint40 additionalTime;
     address vault10;
     address vault5_;
-    address vault5_doa;
+    address vault5_dao;
     address diamond;
 
     struct StudentDetails {
@@ -50,37 +50,46 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     mapping(address => StudentDetails) public studentDetails;
 
-    /// @param _admin: this would be the address that would be handling admin opeartions
-    /// @param _vault10: this is the address this would be 
+    /// @param _admin: this would be the address that would be handling admin operations
+    /// @param _vault10: this is the address this would be
     constructor(
         address _admin,
         address _vault10,
         address _vault5,
-        address _vault5_doa
+        address _vault5_dao
     ) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
-        vault5_doa = _vault5_doa;
+        vault5_dao = _vault5_dao;
     }
 
     /// @notice this function can only be called by the admin
     function setFee(
         uint256 _amount,
         bytes32 _merkleRoot,
-        IERC20 _USDTContractAddr,
+        IERC20 _contractAddr,
         uint40 _elapsedTime,
         uint40 _additionalTime
     ) public {
         if (msg.sender == admin) {
             cohortFee = _amount;
             merkleRoot = _merkleRoot;
-            USDTContractAddr = _USDTContractAddr;
+            USDTContractAddr = _contractAddr;
             paymentStart = uint40(block.timestamp);
             elapsedTime = uint40(block.timestamp + (_elapsedTime * 4 weeks));
             additionalTime = uint40(block.timestamp + (_additionalTime * 4 weeks));
         } else {
             revert notAdmin("Not an Admin");
+        }
+    }
+
+    function changePaymentGateway(IERC20 _contractAddress) external {
+        if(msg.sender == admin) {
+            USDTContractAddr = _contractAddress;
+        }
+        else {
+            revert notAdmin("Only admin can change payment gateway")
         }
     }
 
@@ -112,6 +121,8 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
     }
 
+    /// @dev this function is used to claim the pre-certificate token depending on the time of payment
+    /// @param _merkleProof: the proof to verify that an address is part of the merkle tree
     function claimToken(bytes32[] calldata _merkleProof) public {
         StudentDetails storage sd = studentDetails[msg.sender];
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
@@ -127,15 +138,15 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
                 _mint(msg.sender, 1e18);
                 sd.tokenRecieved = 1;
                 emit TokenClaimed(msg.sender, sd.tokenRecieved);
-                
+
             }
         }
 
         sd.claimed = true;
-        
+
     }
 
-    function updateAdmin(address newAdmin) internal {
+    function updateAdmin(address newAdmin) external {
         assert(newAdmin != address(0));
         if (msg.sender != admin) {
             revert notAdmin("Not an Admin");
@@ -162,7 +173,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         if (msg.sender != diamond) {
             revert NOT_DAIMOND();
         }
-        _mint(msg.sender, 1e18);
+        _mint(_to, 1e18);
 
         emit AdminMint(_to);
     }
