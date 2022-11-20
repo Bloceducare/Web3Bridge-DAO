@@ -69,5 +69,16 @@ describe("DAOtoken", function () {
       await daotoken.mint(hexProof);
       expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
     });
+     it("testing transfer and transferfrom", async function () {
+      const { daotoken ,rootHash, hexProof, students} = await loadFixture(deploysDaotoken);
+      await daotoken.setMerkleRoot(rootHash);
+      await daotoken.setMintAmountPerPerson("30")       
+      await daotoken.enableMinting(true)       
+      await daotoken.mint(hexProof);
+      const balance = ethers.utils.parseEther("30")
+      await daotoken.transfer(students[1].address, balance)
+      expect(await daotoken.balanceOf(students[0].address)).to.equal(balance);
+      expect(await daotoken.connect(students[1]).balanceOf(students[1].address)).to.equal(0);
+    })
   });
 });
