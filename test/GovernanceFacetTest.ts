@@ -5,8 +5,8 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { utils } from "ethers";
 import { it } from "mocha";
-import MerkleTree from 'merkletreejs';
-import keccak256 from 'keccak256'; 
+import MerkleTree from "merkletreejs";
+import keccak256 from "keccak256";
 import {
   getSelectors,
   FacetCutAction,
@@ -22,10 +22,6 @@ import {
 import { deployDiamond, DiamondAddress, DAO_TOKEN } from "../scripts/deploy";
 import { FacetStructOutput } from "../typechain-types/DiamondLoupeFacet";
 import { assert, expect } from "chai";
-
-
-
-
 
 describe("GovenanceFacet", function () {
   async function deploysGovernanceFacet() {
@@ -54,20 +50,24 @@ describe("GovenanceFacet", function () {
       "OwnershipFacet",
       DiamondAddress
     );
-    governmentFacet = await ethers.getContractAt("GovernanceFacet", DiamondAddress);
-
+    governmentFacet = await ethers.getContractAt(
+      "GovernanceFacet",
+      DiamondAddress
+    );
 
     const students = await ethers.getSigners();
-    const leafNodes = students.map(student => keccak256(student.address));
-    const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
+    const leafNodes = students.map((student) => keccak256(student.address));
+    const merkleTree = new MerkleTree(leafNodes, keccak256, {
+      sortPairs: true,
+    });
     const rootHash = merkleTree.getHexRoot();
     const claimingAddress = students[0];
     const hexProof = merkleTree.getHexProof(keccak256(claimingAddress.address));
 
     await DAO_TOKEN.setMerkleRoot(rootHash);
     await DAO_TOKEN.setMintAmountPerPerson("20");
-    await DAO_TOKEN.enableMinting(true)   
-    await DAO_TOKEN.mint(hexProof);    
+    await DAO_TOKEN.enableMinting(true);
+    await DAO_TOKEN.mint(hexProof);
 
     return {
       diamondCutFacet,
@@ -76,8 +76,8 @@ describe("GovenanceFacet", function () {
       governmentFacet,
       addr1,
       DAO_TOKEN,
-      owner, 
-      hexProof
+      owner,
+      hexProof,
     };
   }
 
@@ -86,7 +86,6 @@ describe("GovenanceFacet", function () {
   describe("Testing GovernanceFacet Functions", function () {
     it("should check that proposal count is zero if proposal is not created", async function () {
       const { governmentFacet } = await loadFixture(deploysGovernanceFacet);
-
 
       const proposalCount = await governmentFacet.proposalCount();
       expect(proposalCount).to.equal("0");
@@ -113,7 +112,6 @@ describe("GovenanceFacet", function () {
       );
       const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
 
-
       const createProposal = await governmentFacet.createProposal(
         "Buy a House",
         deadline
@@ -121,6 +119,9 @@ describe("GovenanceFacet", function () {
       await createProposal.wait();
       const proposalCount = await governmentFacet.proposalCount();
       expect(proposalCount).to.equal("1");
+
+      const setMaxVoteWeight = await governmentFacet.setMaxVoteWeight(2);
+      await setMaxVoteWeight.wait();
 
       // Vote for created proposal
       const voteProposal = await governmentFacet.voteProposal(1, 1, 2);
@@ -146,7 +147,7 @@ describe("GovenanceFacet", function () {
       expect(proposalCount2).to.equal("2");
 
       // Vote for same created proposal and check vote count
-      const voteAnotherProposal = await governmentFacet.voteProposal(2, 1, 4);
+      const voteAnotherProposal = await governmentFacet.voteProposal(2, 1, 2);
       await voteAnotherProposal.wait();
 
       const totalVoteCount2 = await governmentFacet.totalVoteCount();
@@ -170,7 +171,6 @@ describe("GovenanceFacet", function () {
       );
       const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
 
-
       const createProposal = await governmentFacet.createProposal(
         "Get another House",
         deadline
@@ -181,7 +181,6 @@ describe("GovenanceFacet", function () {
 
       const cancelProposal = await governmentFacet.cancelProposal(1);
       await cancelProposal.wait();
-
 
       // Try voting for a cancelled proposal
       await expect(governmentFacet.voteProposal(1, 1, 2)).to.be.revertedWith(

@@ -56,16 +56,24 @@ contract Vault5 {
         emit NewPaidUser(msg.sender, numberOfPaidUsers);
     }
 
+<<<<<<< HEAD
     /// @dev A function to withdraw share
     function withdrawShare () external {
         require(withdrawTimeReached == true, "Vault not open");
+=======
+    function withdrawShare () external {
+>>>>>>> 23fb63b9b26adcbab2efa2350dff0ff24c864afe
         earlyPayment storage EP = EarlyPayers[msg.sender];
         assert(EP.withdrawn == false);
         uint216 share = individualShare();
         amountDepositedForSharing -= share;
         EP.withdrawn = true;
         IERC20(tokenContract).transfer(msg.sender, share);
+<<<<<<< HEAD
         numberOfPaidUsers-1;
+=======
+        numberOfPaidUsers--;
+>>>>>>> 23fb63b9b26adcbab2efa2350dff0ff24c864afe
 
         // emit a log event when a new withdrawal is made
         emit NewWithdrawal(msg.sender, share);
@@ -83,6 +91,7 @@ contract Vault5 {
         withdrawTimeReached = true;
     }
 
+<<<<<<< HEAD
     /// @dev A view function to return the balance of the vault
     function returnVaultBalace() public view returns(uint216 vaultBalance) {
         vaultBalance = amountDepositedForSharing;
@@ -93,3 +102,13 @@ contract Vault5 {
         open = withdrawTimeReached;
     }
 }
+=======
+       function returnVaultBalace() public view returns(uint216 vaultBalance) {
+        vaultBalance = amountDepositedForSharing;
+    }
+
+    function checkIfWithdrawTimeReached () public view returns(bool open) {
+        open = withdrawTimeReached;
+    }
+}
+>>>>>>> 23fb63b9b26adcbab2efa2350dff0ff24c864afe

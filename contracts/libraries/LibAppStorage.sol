@@ -28,4 +28,5 @@ struct States {
     uint256 totalVoteCount;
     address admin;
     address daoToken;
+    uint8 maxVoteWeight;
 }
