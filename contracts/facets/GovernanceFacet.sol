@@ -25,9 +25,9 @@ contract GovernanceFacet {
     error voteWeightRangeExceeded();
 
     /// Events
-    event ProposalCreated(string indexed name, uint256 indexed endTime);
-    event ProposalCancelled(uint256 indexed _proposalID);
-    event proposalVoted(uint256 indexed proposalID, uint256 indexed voteType, uint256 indexed voteWeight);
+    event ProposalCreated(address indexed user, string indexed name, uint256 indexed endTime);
+    event ProposalCancelled(uint256 indexed _proposalID, uint256 indexed cancellationTime);
+    event proposalVoted(address indexed voter, uint256 indexed proposalID, uint256 indexed voteType, uint256 voteWeight);
     event adminChanged(address newAdmin);
     event proposalEndTimeExtended(uint proposalID, uint newTime);
     event maxVoteWeightChanged(uint8 maxVoteWeight);
@@ -50,7 +50,7 @@ contract GovernanceFacet {
         newProposal.endTime = _endTime;
         states.proposalCount += 1;
 
-        emit ProposalCreated(_name, _endTime);
+        emit ProposalCreated(msg.sender, _name, _endTime);
     }
 
     /// @dev this function is used to cancel a proposal, given a proposalID
@@ -68,8 +68,9 @@ contract GovernanceFacet {
         }
 
         states.proposals[_proposalID].cancelled = true;
+        uint256 cancellationTime = block.timestamp;
 
-        emit ProposalCancelled(_proposalID);
+        emit ProposalCancelled(_proposalID, cancellationTime);
     }
 
     /// @dev this function is used to extend the endTime of a proposal provided the previous endTime
@@ -183,7 +184,7 @@ contract GovernanceFacet {
         newVote.weight = _voteWeight;
         states.totalVoteCount += 1;
 
-        emit proposalVoted(_proposalID, _voteType, _voteWeight);
+        emit proposalVoted(msg.sender, _proposalID, _voteType, _voteWeight);
     }
 
     /// @dev this function returns all the voter for a particular proposal given the proposalID
