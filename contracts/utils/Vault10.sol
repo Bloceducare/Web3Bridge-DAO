@@ -37,7 +37,7 @@ contract Vault10 {
     }
 
     function addAddressOfEarlyPayment() external {
-        numberOfPaidUsers+1;
+        numberOfPaidUsers += 1;
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
     }
@@ -51,7 +51,7 @@ contract Vault10 {
         amountDepositedForSharing -= share;
         EP.withdrawn = true;
         IERC20(tokenContract).transfer(msg.sender, share);
-        numberOfPaidUsers--;
+        numberOfPaidUsers -= 1;
     }
 
     /// @dev A function to calculate individual share

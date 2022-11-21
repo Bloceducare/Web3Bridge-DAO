@@ -48,7 +48,7 @@ contract Vault5 {
     }
 
     function addAddressOfEarlyPayment () external {
-        numberOfPaidUsers+1;
+        numberOfPaidUsers += 1;
         earlyPayment storage EP = EarlyPayers[msg.sender];
         EP.earlyPayers = msg.sender;
 
@@ -65,7 +65,7 @@ contract Vault5 {
         amountDepositedForSharing -= share;
         EP.withdrawn = true;
         IERC20(tokenContract).transfer(msg.sender, share);
-        numberOfPaidUsers-1;
+        numberOfPaidUsers -= 1;
 
         // emit a log event when a new withdrawal is made
         emit NewWithdrawal(msg.sender, share);
