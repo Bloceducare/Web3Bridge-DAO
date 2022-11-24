@@ -1,0 +1,97 @@
+DiamondCutFacet deployed: 0xD60c709860a5750B36e52Aa5900e3E3b7Cebcedb
+10% vault has been deployed:  0xA48CC66d29CaE4F45BaAe55c1Aee96864659098f
+5% vault has been deployed:  0x2a0F2C5204C82BB01658D701Afc8d2445433BCD4
+Deployed Pre Certificate token:  0x2DBbb82C2df10a5b8D9ead4c9fA33c6Dec845E83
+Diamond deployed: 0x70E67d10Ce0a1d74A745735C0234C1ffF234554d
+DiamondInit deployed: 0xFeE35b225f310477A9e036539Cc48353F46D3199
+
+Deploying facets
+DiamondLoupeFacet deployed: 0xc5EaD0a8A8Ba5b494522F82d715727e7b12234ee
+OwnershipFacet deployed: 0x48d510DB6516c2f15B1c7502be3e0C402a190dd8
+AdminOpsFacet deployed: 0xEE187C57BC4DCa0c1F0Fe742122ef2d9d371D16c
+CertificateFactoryFacet deployed: 0x331843f0C5714A41615c9B059B4251230fd1d21D
+GovernanceFacet deployed: 0x4bd975cB37525CEe07119d3D4E8fA2d1E0db50A9
+TipsTokenFactoryFacet deployed: 0xD918cD9bc9c98665B63f121E0E17b5Cc5B61C20C
+
+Diamond Cut: [
+  {
+    facetAddress: '0xc5EaD0a8A8Ba5b494522F82d715727e7b12234ee',
+    action: 0,
+    functionSelectors: [
+      '0xcdffacc6',
+      '0x52ef6b2c',
+      '0xadfca15e',
+      '0x7a0ed627',
+      '0x01ffc9a7',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  },
+  {
+    facetAddress: '0x48d510DB6516c2f15B1c7502be3e0C402a190dd8',
+    action: 0,
+    functionSelectors: [
+      '0x8da5cb5b',
+      '0xf2fde38b',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  },
+  {
+    facetAddress: '0xEE187C57BC4DCa0c1F0Fe742122ef2d9d371D16c',
+    action: 0,
+    functionSelectors: [
+      '0x1316b6a2',
+      '0x1f74ad4a',
+      '0x1794e95a',
+      '0xae317d31',
+      '0x45bcfbee',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  },
+  {
+    facetAddress: '0x331843f0C5714A41615c9B059B4251230fd1d21D',
+    action: 0,
+    functionSelectors: [
+      '0xf5e177d2',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  },
+  {
+    facetAddress: '0x4bd975cB37525CEe07119d3D4E8fA2d1E0db50A9',
+    action: 0,
+    functionSelectors: [
+      '0xe0a8f6f5',
+      '0x8f283970',
+      '0x35facf78',
+      '0xbd6bcc3e',
+      '0xa953c470',
+      '0x62564c48',
+      '0x86b646f2',
+      '0xda35c664',
+      '0x393d6ff1',
+      '0x893d8f4c',
+      '0x049b5cfa',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  },
+  {
+    facetAddress: '0xD918cD9bc9c98665B63f121E0E17b5Cc5B61C20C',
+    action: 0,
+    functionSelectors: [
+      '0x1602b360',
+      contract: [Contract],
+      remove: [Function: remove],
+      get: [Function: get]
+    ]
+  }
+]
+Diamond cut tx:  0x723862d4a30ffdaaf128abf531c8397ead2d9ba426b30377ee1580700beee7a6
