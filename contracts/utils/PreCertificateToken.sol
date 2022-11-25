@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {IAccessControl} from "../interfaces/IAccessControl.sol";
 
 /// @title Pre-Certificate Token
 /// @author https://github.com/Realkayzee, https://github.com/fesimaxu, https://github.com/centie22
@@ -61,7 +62,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @notice this function can only be called by the admin
     function setFee(uint256 _amount, bytes32 _merkleRoot, IERC20 _contractAddr, uint40 _elapsedTime, uint40 _additionalTime) public {
-        if (msg.sender == admin) {
+        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             cohortFee = _amount;
             merkleRoot = _merkleRoot;
             USDTContractAddr = _contractAddr;
@@ -74,7 +75,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     function changePaymentGateway(IERC20 _contractAddress) external {
-        if (msg.sender == admin) {
+        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             USDTContractAddr = _contractAddress;
         } else {
             revert notAdmin("Only admin can change payment gateway");
@@ -133,7 +134,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     function updateAdmin(address newAdmin) external {
         assert(newAdmin != address(0));
-        if (msg.sender != admin) {
+        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             revert notAdmin("Not an Admin");
         }
         admin = newAdmin;
@@ -144,7 +145,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     /// @param _tokenContractAddress: this is the address of the erc 20 contract
     /// @param _amount: this is the amount of token the manager want to get out of this contract
     function movingGeneric(address _receiver, address _tokenContractAddress, uint256 _amount) public {
-        if (msg.sender == admin) {
+        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             revert notAdmin("Not an Admin");
         }
         IERC20(_tokenContractAddress).transfer(_receiver, _amount); // this would transfer the token from the contract to the address
@@ -160,7 +161,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     }
 
     function set_diamond(address _addr) external {
-        if (msg.sender != admin) {
+        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             revert notAdmin("Not an Admin");
         }
 
