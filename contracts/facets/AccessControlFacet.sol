@@ -42,3 +42,6 @@ contract AccessControl {
         AcessControl.transferSuper(_superuser, msg.sender);
     }
 }
+
+
+// role: bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER")))
