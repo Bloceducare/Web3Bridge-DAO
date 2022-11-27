@@ -18,7 +18,7 @@ module.exports = {
     timeout: 100000000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.POLYGONSCAN_API_KEY,
   },
   networks: {
     hardhat: {
@@ -32,7 +32,7 @@ module.exports = {
     mumbai: {
       url: process.env.ALCHEMY_MUMBAI_URL,
       accounts: [process.env.PRIVATE_KEY],
-    },
+    }
   },
   gasReporter: {
     currency: "USD",
