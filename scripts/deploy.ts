@@ -46,6 +46,7 @@ export async function deployDiamond() {
   const DAOToken = await ethers.getContractFactory("DAOtoken");
   const _DAOToken = await DAOToken.deploy();
   await _DAOToken.deployed();
+  console.log("DAOToken deployed: ", _DAOToken.address);
 
   DAO_TOKEN = _DAOToken;
 
