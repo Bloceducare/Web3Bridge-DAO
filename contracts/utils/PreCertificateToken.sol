@@ -77,6 +77,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
     }
 
+    /// @dev ChangePaymentGateway function is responsible for changing the contract address of payment
     function changePaymentGateway(IERC20 _contractAddress) external {
         if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
             USDTContractAddr = _contractAddress;
@@ -166,7 +167,39 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         admin = newAdmin;
     }
 
-    /// @dev this function would move any ERC20 token that is transfered to this address
+    /// @dev function to update payment addresses
+    function updateVault5(address _vault5) external {
+        if(IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
+            vault5_ = _vault5;
+        } else {
+            revert notAdmin("Only admin can update vault5");
+        }
+    }
+
+    function updateVault10(address _vault10) external {
+        if(IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
+            vault5_ = _vault10;
+        } else {
+            revert notAdmin("Only admin can update vault10");
+        }
+    }
+
+    function updateVault5Dao(address _vault5Dao) external {
+        if(IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
+            vault5_dao = _vault5Dao;
+        } else {
+            revert notAdmin("Only admin can update vault5Dao");
+        }
+    }
+    function updateW3BAddress(address _W3B) external {
+        if(IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
+            web3BridgeAddress = _W3B;
+        } else {
+            revert notAdmin("Only admin can update Web3Bridge Address");
+        }
+    }
+
+    /// @dev this function would move a                            ny ERC20 token that is transfered to this address
     /// @param _receiver: this is the address that would be receiving the tokens
     /// @param _tokenContractAddress: this is the address of the erc 20 contract
     /// @param _amount: this is the amount of token the manager want to get out of this contract
