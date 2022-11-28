@@ -31,16 +31,18 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     // STATE VARIABLE
     // ===========================
     bytes32 public merkleRoot;
-    IERC20 public USDTContractAddr;
     uint256 public cohortFee;
-    address public admin;
+    address vault10;
     uint40 paymentStart;
     uint40 elapsedTime;
-    uint40 additionalTime;
-    address vault10;
     address vault5_;
     address vault5_dao;
     address diamond;
+    address web3BridgeAddress;
+    IERC20 public USDTContractAddr;
+    address public admin;
+    uint40 additionalTime;
+
 
     struct StudentDetails {
         uint256 amountPaid;
@@ -53,11 +55,12 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     /// @param _admin: this would be the address that would be handling admin operations
     /// @param _vault10: this is the address this would be
-    constructor(address _admin, address _vault10, address _vault5, address _vault5_dao) {
+    constructor(address _admin, address _vault10, address _vault5, address _vault5_dao, address _web3BridgeAddress) {
         admin = _admin;
         vault10 = _vault10;
         vault5_ = _vault5;
         vault5_dao = _vault5_dao;
+        web3BridgeAddress = _web3BridgeAddress;
     }
 
     /// @notice this function can only be called by the admin
@@ -82,16 +85,39 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
     }
 
+    function W3BReceiver(uint256 _w3bPayment) internal {
+        USDTContractAddr.transferFrom(msg.sender, web3BridgeAddress, _w3bPayment);
+    }
+
+    function vault10Receiver(uint256 _vault10Payment) internal {
+        USDTContractAddr.transferFrom(msg.sender, vault10, _vault10Payment);
+    }
+
+    function vault5Receiver(uint256 _vault5Payment) internal {
+        USDTContractAddr.transferFrom(msg.sender, vault5_, _vault5Payment);
+    }
+
+    function vault5DaoReceiver(uint256 _vault5DaoPayment) internal {
+        USDTContractAddr.transferFrom(msg.sender, vault5_dao, _vault5DaoPayment);
+    }
+
     /// @dev A function for student's payment
     /// @notice A seperate function is created for fee payment in other allow installmental payment
     function payFee(uint256 _stableAmount, bytes32[] calldata _merkleProof) public payable {
         StudentDetails storage sd = studentDetails[msg.sender];
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         if (MerkleProof.verify(_merkleProof, merkleRoot, leaf) && block.timestamp < additionalTime) {
-            // assert(_stableAmount >= (cohortFee * 70)/100) ;
-            USDTContractAddr.transferFrom(msg.sender, address(this), _stableAmount);
+            uint256 w3bPayment = 80 * _stableAmount/100;
+            uint256 vault10Payment = 10 * _stableAmount/100;
+            uint256 vault5Payment = 5 * _stableAmount/100;
+            uint256 vault5_daoPayment = 5 * _stableAmount/100;
             sd.amountPaid += _stableAmount;
             sd.timeOfLastPayment = uint40(block.timestamp);
+            _stableAmount = 0;
+            W3BReceiver(w3bPayment);
+            vault10Receiver(vault10Payment);
+            vault5Receiver(vault5Payment);
+            vault5DaoReceiver(vault5_daoPayment);
         } else if (block.timestamp > additionalTime && sd.amountPaid < cohortFee) {
             uint256 amount = sd.amountPaid;
             sd.amountPaid = 0;
