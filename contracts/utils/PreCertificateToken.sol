@@ -40,7 +40,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     address diamond;
     address web3BridgeAddress;
     IERC20 public USDTContractAddr;
-    address public admin;
     uint40 additionalTime;
 
 
@@ -53,10 +52,11 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     mapping(address => StudentDetails) public studentDetails;
 
-    /// @param _admin: this would be the address that would be handling admin operations
-    /// @param _vault10: this is the address this would be
-    constructor(address _admin, address _vault10, address _vault5, address _vault5_dao, address _web3BridgeAddress) {
-        admin = _admin;
+    /// @param _vault10: address responsible for holding 10% of user's payment
+    /// @param _vault5: address responsible for holding 5% of user's payment
+    /// @param _vault5_dao: address responsible for holding 5% of user's payment to vault dao
+    /// @param _web3BridgeAddress: Web3Bridge address
+    constructor(address _vault10, address _vault5, address _vault5_dao, address _web3BridgeAddress) {
         vault10 = _vault10;
         vault5_ = _vault5;
         vault5_dao = _vault5_dao;
@@ -157,14 +157,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
 
         sd.claimed = true;
-    }
-
-    function updateAdmin(address newAdmin) external {
-        assert(newAdmin != address(0));
-        if (IAccessControl(diamond).hasRole(bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER"))), msg.sender)) {
-            revert notAdmin("Not an Admin");
-        }
-        admin = newAdmin;
     }
 
     /// @dev function to update payment addresses
