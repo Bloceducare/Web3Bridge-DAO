@@ -29,10 +29,10 @@ module.exports = {
     localhost: {
       timeout: 8000000,
     },
-    mumbai: {
-      url: process.env.ALCHEMY_MUMBAI_URL,
-      accounts: [process.env.PRIVATE_KEY],
-    }
+    // mumbai: {
+    //   url: process.env.ALCHEMY_MUMBAI_URL,
+    //   accounts: [process.env.PRIVATE_KEY],
+    // }
   },
   gasReporter: {
     currency: "USD",
