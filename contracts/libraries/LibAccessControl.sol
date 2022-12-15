@@ -90,8 +90,7 @@ library AcessControl {
 
   
   function hasRoleWithRevert(Dto.Roles _role, address _assignee) internal view returns(bool has_role) {
-    Dto.AccessControlStorage storage ms = accessControlStorage();
-    if(_assignee == ms.superuser || ms.role[_assignee] == _role) {
+    if(hasRole(_role, _assignee)) {
         return true;
     } else {
         revert Errors.NOT_ROLE_MEMBER();
