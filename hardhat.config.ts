@@ -30,8 +30,8 @@ module.exports = {
       timeout: 8000000,
     },
     mumbai: {
-      url: process.env.ALCHEMY_MUMBAI_URL,
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.ALCHEMY_MUMBAI_URL || "",
+      accounts: [process.env.PRIVATE_KEY || "0xabc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1"],
     }
   },
   gasReporter: {
