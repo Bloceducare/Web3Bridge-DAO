@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import {AcessControl} from "../libraries/LibAccessControl.sol";
+import {AcessControl, Dto} from "../libraries/LibAccessControl.sol";
 
 /// @notice this contract would be handling access control matter for the web3bridge doa ecosystem
 contract AccessControl {
@@ -11,25 +11,25 @@ contract AccessControl {
         AcessControl.setUp(_superuser);
     }
 
-    /// @notice
-    /// @dev [this is would be guided by this assess control]
+    /// @notice this function would be useed to grant role to an account 
+    /// @dev [this is would be guided by this assess control] (and this access control has been implemented in the provider)
     /// @param _role: this is the role this is to be assigned to the address (keccak256("NAME_OF_ROLE"))
     /// @param _assignee: this is the address the role would be assigned to
-    function grantRole(bytes32 _role, address _assignee) external {
-        AcessControl.grantRole(_role, _assignee, msg.sender);
+    function grantRole(Dto.Roles _role, address _assignee) external {
+        AcessControl.grantRole(_assignee, _role);
     }
 
     /// @notice this function would be used by the superuser to revoke role given to and address
     /// @dev during this process, this function would be gated in that only yhe superuser can make this call
-    function revokeRole(bytes32 _role, address _assignee) external {
-        AcessControl.revokeRole(_role, _assignee, msg.sender);
+    function revokeRole(Dto.Roles _role, address _assignee) external {
+        AcessControl.revokeRole(_role, _assignee);
     }
 
     /// @notice this function is a view that would be used to check if an address has a role
     /// @dev this function would not be guided
     /// @param _role: this is the role this is to be assigned to the address (keccak256("NAME_OF_ROLE"))
     /// @param _assignee: this is the address the role would be assigned to
-    function hasRole(bytes32 _role, address _assignee) external view returns (bool isAdmin_) {
+    function hasRole(Dto.Roles _role, address _assignee) external view returns (bool isAdmin_) {
         isAdmin_ = AcessControl.hasRole(_role, _assignee);
     }
 
@@ -41,4 +41,3 @@ contract AccessControl {
     }
 }
 
-// role: bytes32(abi.encodePacked(keccak256("PRE_CERTIFICATE_TOKEN_MANAGER")))
