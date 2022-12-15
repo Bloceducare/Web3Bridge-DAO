@@ -3,15 +3,22 @@ pragma solidity ^0.8.0;
 
 
 library Dto {
-  struct GovernorStorage {
-    mapping(bytes32 => mapping(address => bool)) role; // role => address => status
-    address superuser;
+  enum Roles {
+    DEFAULT, // This is the role that all addresses has by default 
+    DAO_GOVERNACE_MANAGER, // This role would be allowed to carryout governing action like creating proposal 
+    ADMIN_OPERATOR, // This role would be able to call all the function in the admin ops facet
+    CERTIFICATE_MANAGER, // This role owner would be able to deploy new certificate when a cohort graduate 
+    TOKEN_FACTORY
+  }
+  struct AccessControlStorage {
+    mapping(address => Roles) role; // address => role
+    address superuser; // The superuser can preform all the role and assign role to addresses 
     bool is_initialized;
   }
 }
 
 library Positions {
-  bytes32 constant GOVERNOR_STORAGE_POSITION = keccak256("access.control.bridge.dao.storage");
+  bytes32 constant ACCESS_CONTROL_STORAGE_POSITION = keccak256("access.control.bridge.dao.storage");
 }
 
 library Errors {
@@ -27,28 +34,28 @@ library AcessControl {
     // ================================
     // EVENT
     // ================================
-    event RoleGranted(bytes32 role, address assignee);
-    event RoleRevoked(bytes32 role, address assignee);
+    event RoleGranted(Dto.Roles role, address assignee);
+    event RoleRevoked(Dto.Roles role, address assignee);
     event Setuped(address superuser);
     event SuperuserTransfered(address new_superuser);
 
 
-  function governorStorage() internal pure returns (Dto.GovernorStorage storage ms) {
-    bytes32 position = Positions.GOVERNOR_STORAGE_POSITION;
+  function governorStorage() internal pure returns (Dto.AccessControlStorage storage ms) {
+    bytes32 position = Positions.ACCESS_CONTROL_STORAGE_POSITION;
     assembly {
       ms.slot := position
     }
   }
 
   function enforceSuperUser(address _addr) internal view {
-    Dto.GovernorStorage storage ms = governorStorage();
+    Dto.AccessControlStorage storage ms = governorStorage();
     if(_addr == ms.superuser) {
         revert Errors.NOT_SUPERUSER();
     }
   }
 
   function setUp(address _superuser) internal {
-    Dto.GovernorStorage storage ms = governorStorage();
+    Dto.AccessControlStorage storage ms = governorStorage();
     if(ms.is_initialized == true) {
         revert Errors.HAS_BEEN_INITIALIZED();
     }
@@ -60,35 +67,31 @@ library AcessControl {
   }
 
 
-  function grantRole(bytes32 _role, address _assignee, address _current_caller) internal {
-    enforceSuperUser(_current_caller);
-    Dto.GovernorStorage storage ms = governorStorage();
-    ms.role[_role][_assignee] = true;
+  function grantRole(address _assignee, Dto.Roles _role) internal {
+    enforceSuperUser(msg.sender);
+    Dto.AccessControlStorage storage ms = governorStorage();
+    ms.role[_assignee] = _role;
 
     emit RoleGranted(_role, _assignee);
   }
 
-  function revokeRole(bytes32 _role, address _assignee, address _current_caller) internal {
+  function revokeRole(Dto.Roles _role, address _assignee, address _current_caller) internal {
     enforceSuperUser(_current_caller);
-    Dto.GovernorStorage storage ms = governorStorage();
-    ms.role[_role][_assignee] = false;
+    Dto.AccessControlStorage storage ms = governorStorage();
+    ms.role[_assignee] = Dto.Roles.DEFAULT;
 
     emit RoleRevoked(_role, _assignee);
   }
 
-  function hasRole(bytes32 _role, address _assignee) internal view returns(bool has_role) {
-    Dto.GovernorStorage storage ms = governorStorage();
-    if(_assignee == ms.superuser) {
-        return true;
-    } else {
-        return ms.role[_role][_assignee];
-    }
+  function hasRole(Dto.Roles _role, address _assignee) internal view returns(bool has_role) {
+    Dto.AccessControlStorage storage ms = governorStorage();
+    has_role = _role == ms.role[_assignee] || _assignee == ms.superuser;
   }
 
   
-  function hasRoleWithRevert(bytes32 _role, address _assignee) internal view returns(bool has_role) {
-    Dto.GovernorStorage storage ms = governorStorage();
-    if(_assignee == ms.superuser || ms.role[_role][_assignee]) {
+  function hasRoleWithRevert(Dto.Roles _role, address _assignee) internal view returns(bool has_role) {
+    Dto.AccessControlStorage storage ms = governorStorage();
+    if(_assignee == ms.superuser || ms.role[_assignee] == _role) {
         return true;
     } else {
         revert Errors.NOT_ROLE_MEMBER();
@@ -98,7 +101,7 @@ library AcessControl {
 
   function transferSuper(address _superuser, address _current_caller) internal {
     enforceSuperUser(_current_caller);
-    Dto.GovernorStorage storage ms = governorStorage();
+    Dto.AccessControlStorage storage ms = governorStorage();
     ms.superuser = _superuser;
 
     emit SuperuserTransfered(_superuser);
