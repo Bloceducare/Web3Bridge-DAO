@@ -7,8 +7,9 @@ library Dto {
     DEFAULT, // This is the role that all addresses has by default 
     DAO_GOVERNACE_MANAGER, // This role would be allowed to carryout governing action like creating proposal 
     ADMIN_OPERATOR, // This role would be able to call all the function in the admin ops facet
-    CERTIFICATE_MANAGER, // This role owner would be able to deploy new certificate when a cohort graduate 
-    TOKEN_FACTORY
+    CERTIFICATE_MANAGER, // This role owner would be able to deploy new certificate when a cohort graduate
+    TOKEN_FACTORY,
+    PRE_CERTIFICATE_TOKEN_MANAGER // this role owner would be able to call guarded function in the precertificate token 
   }
   struct AccessControlStorage {
     mapping(address => Roles) role; // address => role
