@@ -8,6 +8,7 @@ import { DiamondCutFacet } from "../typechain-types";
 import { getSelectors, FacetCutAction } from "./libraries/diamond";
 
 export let DiamondAddress: string;
+export let preCertificateToken: any;
 export let DAO_TOKEN: any;
 
 export async function deployDiamond() {
@@ -40,6 +41,7 @@ export async function deployDiamond() {
   const PreCert = await ethers.getContractFactory("PreCertificateToken");
   const preCert = await PreCert.deploy(contractOwner.address, vault10.address, vault5.address, DAO_TRESURY);
   await preCert.deployed();
+  preCertificateToken = preCert;
   // console.log("Deployed Pre Certificate token: ", preCert.address);
 
   // deploy DAO token
@@ -65,6 +67,8 @@ export async function deployDiamond() {
 
   // transferring ownership of DAOToken to the diamond 
   await _DAOToken.setDiamondAddress(diamond.address);
+
+  await preCert.init(diamond.address);
 
   // deploy DiamondInit
   // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables

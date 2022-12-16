@@ -7,7 +7,7 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { assert, expect } from "chai";
 import { utils } from "ethers";
-import {deployDiamond, DiamondAddress} from "../scripts/deploy"
+import {deployDiamond, DiamondAddress, preCertificateToken} from "../scripts/deploy"
 
 import { it } from "mocha";
 import { stringify } from "querystring";
@@ -26,7 +26,7 @@ describe("PreCertificateToken", function () {
 
     await deployDiamond();
 
-    const diamond = ethers.getContractAt(
+    const diamond = await ethers.getContractAt(
       "PreCertificateToken",
       DiamondAddress
     );
@@ -54,10 +54,6 @@ describe("PreCertificateToken", function () {
     const daotoken = await DAOtoken.deploy();
 
 
-    const PrCertificate = await ethers.getContractFactory("PreCertificateToken");
-    const precertificate = await PrCertificate.deploy(owner.address,vault10.address,vault5.address,address1.address);
-
-    console.log("PreCertificateToken Deployed Here:", precertificate.address);
 
     
 
@@ -69,7 +65,7 @@ describe("PreCertificateToken", function () {
 
    const rootHash = merkleTree.getHexRoot();
 
-   return { whitelistAddresses, owner,address1,address2,rootHash, token, precertificate,merkleTree,diamond };
+   return { whitelistAddresses, owner,address1,address2,rootHash, token,merkleTree, preCertificateToken, diamond };
   }
 
 
@@ -77,12 +73,12 @@ describe("PreCertificateToken", function () {
 
   describe("Testing the PreCertificateToken functions", function () {
     it("checks PreCertificateToken contract is deployed successfully", async function () {
-        const { precertificate } = await loadFixture(deploysPreCertificateToken);
-        assert.ok(precertificate.address);
+        const { preCertificateToken } = await loadFixture(deploysPreCertificateToken);
+        assert.ok(preCertificateToken.address);
       });
 
     it("checks PrecertificateToken contract balance is zero", async function () {
-      const { owner,address1, token, precertificate } = await loadFixture(deploysPreCertificateToken);
+      const { owner,address1, token, preCertificateToken } = await loadFixture(deploysPreCertificateToken);
 
       await token.mint(address1.address, ethers.utils.parseEther("200000"));
 
@@ -90,12 +86,12 @@ describe("PreCertificateToken", function () {
       .connect(address1)
       .balanceOf(address1.address);
 
-     const balanceOfPreCerticateToken = await token.balanceOf(precertificate.address);
+     const balanceOfPreCerticateToken = await token.balanceOf(preCertificateToken.address);
     
      expect(balanceOfPreCerticateToken).to.equal(0);
     });
     it("checks that PreCertificateToken balance is equal to the amount paid", async function () {
-        const { owner,address1,rootHash, token, precertificate,merkleTree } = await loadFixture(deploysPreCertificateToken);
+        const { owner,address1,rootHash, token, preCertificateToken, merkleTree } = await loadFixture(deploysPreCertificateToken);
   
         await token.mint(address1.address, ethers.utils.parseEther("200000"));
       
@@ -106,85 +102,85 @@ describe("PreCertificateToken", function () {
         const leaf = keccak256(address1.address);
         const proof = merkleTree.getHexProof(leaf);
   
-       const setAmount = await precertificate.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
+       const setAmount = await preCertificateToken.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
   
        await token
        .connect(address1)
-       .approve(precertificate.address, amount);
+       .approve(preCertificateToken.address, amount);
   
-       const studentPayment = await precertificate.connect(address1).payFee(amount,proof);
+       const studentPayment = await preCertificateToken.connect(address1).payFee(amount,proof);
   
        const addressBalance = await token.balanceOf(address1.address);
        console.log("Address one balance 2 is", addressBalance.toString());
        
-       const contractBalance = await token.balanceOf(precertificate.address);
+       const contractBalance = await token.balanceOf(preCertificateToken.address);
        console.log("Address contract balance is", contractBalance.toString());
   
        expect(contractBalance).to.equal(amount);
       });
-    //   it("checks that the student have completed their payment", async function () {
-    //     const { owner,address1,rootHash, token, precertificate,merkleTree } = await loadFixture(deploysPreCertificateToken);
+      it("checks that the student have completed their payment", async function () {
+        const { owner,address1,rootHash, token, preCertificateToken,merkleTree } = await loadFixture(deploysPreCertificateToken);
   
-    //     await token.mint(address1.address, ethers.utils.parseEther("200000"));
+        await token.mint(address1.address, ethers.utils.parseEther("200000"));
       
   
-    //     const amount = ethers.utils.parseEther("20");
-    //     const schoolFees = ethers.utils.parseEther("20");
+        const amount = ethers.utils.parseEther("20");
+        const schoolFees = ethers.utils.parseEther("20");
   
-    //     const leaf = keccak256(address1.address);
-    //     const proof = merkleTree.getHexProof(leaf);
+        const leaf = keccak256(address1.address);
+        const proof = merkleTree.getHexProof(leaf);
   
-    //    const setAmount = await precertificate.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
+       const setAmount = await preCertificateToken.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
   
-    //    await token
-    //    .connect(address1)
-    //    .approve(precertificate.address, amount);
+       await token
+       .connect(address1)
+       .approve(preCertificateToken.address, amount);
   
-    //    const studentPayment = await precertificate.connect(address1).payFee(amount,proof);
+       const studentPayment = await preCertificateToken.connect(address1).payFee(amount,proof);
   
-    //    const addressBalance = await token.balanceOf(address1.address);
+       const addressBalance = await token.balanceOf(address1.address);
        
-    //    const contractBalance = await token.balanceOf(precertificate.address);
+       const contractBalance = await token.balanceOf(preCertificateToken.address);
 
-    //    const checkComplete = await precertificate.checkCompleted(
-    //     address1.address
-    //   );
+       const checkComplete = await preCertificateToken.checkCompleted(
+        address1.address
+      );
   
-    //    expect(checkComplete).to.equal(true);
-    //   });
-    //   it("checks that students can claim their Tokens", async function () {
-    //     const { whitelistAddresses,address1,owner,rootHash, token, precertificate,merkleTree } = await loadFixture(deploysPreCertificateToken);
+       expect(checkComplete).to.equal(true);
+      });
+      it("checks that students can claim their Tokens", async function () {
+        const { whitelistAddresses,address1,owner,rootHash, token, preCertificateToken,merkleTree } = await loadFixture(deploysPreCertificateToken);
 
-    //     await token.mint(address1.address, ethers.utils.parseEther("200000"));
+        await token.mint(address1.address, ethers.utils.parseEther("200000"));
       
   
-    //     const amount = ethers.utils.parseEther("20");
-    //     const schoolFees = ethers.utils.parseEther("20");
+        const amount = ethers.utils.parseEther("20");
+        const schoolFees = ethers.utils.parseEther("20");
 
-    //     const addressBalance = await token.balanceOf(address1.address);
+        const addressBalance = await token.balanceOf(address1.address);
         
-    //     const contractBalance = await token.balanceOf(precertificate.address);
+        const contractBalance = await token.balanceOf(preCertificateToken.address);
 
-    //     const encodeLeaf = whitelistAddresses.map(addr => keccak256(addr));
+        const encodeLeaf = whitelistAddresses.map(addr => keccak256(addr));
         
-    //     const leaf = keccak256(address1.address);
-    //     const proof = merkleTree.getHexProof(leaf);
+        const leaf = keccak256(address1.address);
+        const proof = merkleTree.getHexProof(leaf);
   
-    //    const setAmount = await precertificate.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
+       const setAmount = await preCertificateToken.connect(owner).setFee(schoolFees,rootHash,token.address,6,9);
   
-    //    await token
-    //    .connect(address1)
-    //    .approve(precertificate.address, amount);
+       await token
+       .connect(address1)
+       .approve(preCertificateToken.address, amount);
   
-    //    const studentPayment = await precertificate.connect(address1).payFee(amount,proof);
+       const studentPayment = await preCertificateToken.connect(address1).payFee(amount,proof);
         
-    //    const claimToken = await precertificate.connect(address1).claimToken(
-    //     proof
-    //   );
-    //   const cohortStudent = await precertificate.studentDetails(address1.address);
+       const claimToken = await preCertificateToken.connect(address1).claimToken(
+        proof
+      );
+      const cohortStudent = await preCertificateToken.studentDetails(address1.address);
 
-    //   expect(cohortStudent.claimed).to.equal(true);
+      expect(cohortStudent.claimed).to.equal(true);
   
-    //   });
+      });
   });
 });
