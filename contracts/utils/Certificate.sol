@@ -7,26 +7,45 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IHasPaid} from "../interfaces/IHasPaid.sol";
+import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
 
-contract Certificate is ERC721, ERC721URIStorage, Ownable {
+
+contract Certificate is ERC721, ERC721URIStorage {
     bytes32 public merkle_root; // store the merkle root hash
     using Counters for Counters.Counter;
-
     Counters.Counter private _tokenIdCounter;
-
     mapping(address => bool) hasMinted;
     address pre_cert_token; // used to see if a user has paid cohort fee be mint certificate to them
+    address diamond;
+    
+
+    // ======================
+    // ERROR 
+    // ======================
+
+    error NOT_ADMIN();
+    error TRANSFER_NOT_ALLOWED();
+    error BURN_NOT_SUCCESSFUL();
+
 
     constructor(
         string memory _name,
         string memory _symbol,
-        address _pre_cerificate_token
+        address _pre_cerificate_token,
+        address _diamond
     ) ERC721(_name, _symbol) {
         pre_cert_token = _pre_cerificate_token;
+        diamond = _diamond;
     }
 
-    function setMerkleRoot(bytes32 root) external onlyOwner {
-        merkle_root = root;
+    /// @notice this function would be setting the merkle root need for validation 
+    /// @dev this should be set before normal interaction 
+    function setMerkleRoot(bytes32 root) external {
+        if(IAccessControl(diamond).hasRole(Dto.Roles.CERTIFICATE_MANAGER, msg.sender)) {
+            merkle_root = root;
+        } else {
+            revert NOT_ADMIN();
+        }
     }
 
     /// @notice this function would mint certificate to user if all conditions are met
@@ -56,22 +75,30 @@ contract Certificate is ERC721, ERC721URIStorage, Ownable {
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override {}
+    ) public pure virtual override {
+        revert TRANSFER_NOT_ALLOWED();
+    }
 
     function safeTransferFrom(
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override {}
+    ) public pure virtual override {
+        revert TRANSFER_NOT_ALLOWED();
+    }
 
     function safeTransferFrom(
         address from,
         address to,
         uint256 tokenId,
         bytes memory data
-    ) public virtual override {}
+    ) public virtual override {
+        revert TRANSFER_NOT_ALLOWED();
+    }
 
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {}
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        revert BURN_NOT_SUCCESSFUL();
+    }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);

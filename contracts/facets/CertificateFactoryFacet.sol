@@ -21,7 +21,7 @@ contract CertificateFactoryFacet {
     function depolyCertificate(string memory name, string memory symbol) external {
         LibDiamond.enforceIsContractOwner();
         LibDiamond.DiamondStorage storage ms = LibDiamond.diamondStorage();
-        Certificate new_certificate = new Certificate(name, symbol, ms.pre_certificate_token);
+        Certificate new_certificate = new Certificate(name, symbol, ms.pre_certificate_token, address(this));
 
         emit CertificateDeployed(name, symbol, address(new_certificate), block.timestamp);
     }
