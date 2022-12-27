@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import {IERC20} from "../interfaces/IERC20.sol";
+import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
 
 /// @title Vault10 Contract
 /// @author https://github.com/Ultra-Tech-code, https://github.com/Adebara123
 /// The Vault10 contract is used as a reward token disbursing contract for past cohort interns
 /// The owner will open the vault(set withdrawTimeReached to true) for withdrawal
 contract Vault10 {
-    /// @param _tokenContract: this would be the address of the token that will be disbursed.
-    /// @param _owner: this is the address that would be handling the admin operations
-    constructor(address _tokenContract, address _owner) {
-        tokenContract = IERC20(_tokenContract);
-        owner = _owner;
-    }
+
+    //Error
+    error ALREADY_INITIALIZIED();
+    error notAdmin(string);
 
     // ===========================
     // STATE VARIABLE
@@ -22,6 +21,23 @@ contract Vault10 {
     uint8 numberOfPaidUsers;
     address owner;
     IERC20 tokenContract;
+    address diamond;
+    bool isInitialized;
+
+    /// @param _tokenContract: this would be the address of the token that will be disbursed.
+    /// @param _owner: this is the address that would be handling the admin operations
+    constructor(address _tokenContract, address _owner) {
+        tokenContract = IERC20(_tokenContract);
+        owner = _owner;
+    }
+
+    function init(address _diamond) external {
+        if(isInitialized) {
+            revert ALREADY_INITIALIZIED();
+        }
+        diamond = _diamond;
+        isInitialized = true;
+    }
 
     struct earlyPayment {
         address earlyPayers;
@@ -62,8 +78,12 @@ contract Vault10 {
     /// @dev A function to open the vault for withdrawal
     /// @notice this function can only be called by the owner
     function openVault() public {
-        assert(msg.sender == owner);
-        withdrawTimeReached = true;
+        if (IAccessControl(diamond).hasRole(Dto.Roles.VAULT_MANAGER, msg.sender)) {
+            withdrawTimeReached = true;
+
+        }else{
+            revert notAdmin("Not an Admin");
+        }   
     }
 
     /// @dev A view function to return the balance of the vault
