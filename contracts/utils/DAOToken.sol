@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IERC20} from "../interfaces/IERC20.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
 
 
 /// @title Web3DAO-Token Implmentartion Contract
@@ -11,6 +12,13 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 /// @author team Web3Bridge  💯
 
 contract DAOtoken is IERC20 {
+
+    // ===========================
+    // CUSTOM ERROR
+    // ===========================
+    error notAdmin(string);
+    error ALREADY_INITIALIZIED();
+
     /**
      * ===================================================
      * ----------------- STATE VARIBLE -------------------
@@ -26,15 +34,19 @@ contract DAOtoken is IERC20 {
 
     uint256 private _mintAmountperPerson = 20;
 
-    address private _owner;
+    // address private _owner;
 
-    address public _diamond;
+    // address public _diamond;
 
     IERC20 nftcetificate;
 
     bool private _enableMinting;
 
-    bytes32 public merkle_root; 
+    bytes32 public merkle_root;
+
+    address diamond;
+
+    bool isInitialized;
 
     /**
      * ===================================================
@@ -42,15 +54,15 @@ contract DAOtoken is IERC20 {
      * ===================================================
      */
 
-    modifier onlyOwner() {
-        require(msg.sender == _owner, "not owner");
-        _;
-    }
+    // modifier onlyOwner() {
+    //     require(msg.sender == _owner, "not owner");
+    //     _;
+    // }
 
-    modifier onlyDiamond() {
-        require(msg.sender == _diamond, "not owner");
-        _;
-    }
+    // modifier onlyDiamond() {
+    //     require(msg.sender == _diamond, "not owner");
+    //     _;
+    // }
 
     /**
      * ===================================================
@@ -58,8 +70,17 @@ contract DAOtoken is IERC20 {
      * ===================================================
      */
 
-    constructor() {
-        _owner = msg.sender;
+    // constructor() {
+    //     _owner = msg.sender;
+    // }
+
+
+    function init(address _diamond) external {
+        if(isInitialized) {
+            revert ALREADY_INITIALIZIED();
+        }
+        diamond = _diamond;
+        isInitialized = true;
     }
 
     function name() public view returns (string memory) {
@@ -82,15 +103,24 @@ contract DAOtoken is IERC20 {
         return _balances[account];
     }
 
-    // to change the merkleroot hash and can be called by onlyowner
-    function setMerkleRoot(bytes32 root) external onlyOwner {
-        merkle_root = root;
+    function setMerkleRoot(bytes32 root) external {
+        if (IAccessControl(diamond).hasRole(Dto.Roles.TOKEN_FACTORY, msg.sender)) {
+            merkle_root = root;
+        }
+        else {
+            revert notAdmin("Not an admin.");
+        }
     }
 
     //sets the amount to be minted for each members
-    function setMintAmountPerPerson(uint256 newamount) public onlyOwner {
-        require(newamount != 0, "cant zero for students");
-        _mintAmountperPerson = newamount;
+    function setMintAmountPerPerson(uint256 newamount) public {
+        if (IAccessControl(diamond).hasRole(Dto.Roles.TOKEN_FACTORY, msg.sender)) {
+            require(newamount != 0, "cant zero for students");
+            _mintAmountperPerson = newamount;
+        }
+        else {
+            revert notAdmin("Only admin can set the amount to be minted.");
+        }
     }
 
     // return the amount to be minted to members
@@ -98,22 +128,14 @@ contract DAOtoken is IERC20 {
         return _mintAmountperPerson;
     }
 
-    //gets the owner of the contracts
-    function getOwner() public view returns (address) {
-        return _owner;
-    }
-
-    /// @notice sets the owner to a new one
-    /// @dev NOTE this script must transfer ownership imedately after deployment
-    function setNewOwner(address newOwner) public onlyOwner {
-        require(newOwner != address(0), "zero address");
-        _owner = newOwner;
-    }
-
     /// @notice this function is the function used to set the diamond address
     /// @dev this would update the diamond state variable
-    function setDiamondAddress(address _addr) external onlyOwner {
-        _diamond = _addr;
+    function set_diamond(address _addr) external {
+        if (!IAccessControl(diamond).hasRole(Dto.Roles.TOKEN_FACTORY, msg.sender)) {
+            revert notAdmin("Not an Admin");
+        }
+
+        diamond = _addr;
     }
 
     /// @notice this fuction is used to get the state of minting
@@ -125,7 +147,7 @@ contract DAOtoken is IERC20 {
     }
 
     /// @notice this function is called by owner to enable minting every session 🤑
-    function enableMinting(bool status) external onlyOwner {
+    function enableMinting(bool status) external {
         _enableMinting = status;
     }
 

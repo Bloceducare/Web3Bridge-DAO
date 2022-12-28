@@ -14,6 +14,7 @@ import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
 /// The admin will set the fee to be paid by students
 
 contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
+
     // ===========================
     // CUSTOM ERROR
     // ===========================
@@ -21,6 +22,7 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     error notCompleted(string);
     error NOT_DAIMOND();
     error ALREADY_INITIALIZIED();
+
     // ===========================
     event AdminMint(address to);
     event TokenClaimed(address indexed _address, uint256 _value);
