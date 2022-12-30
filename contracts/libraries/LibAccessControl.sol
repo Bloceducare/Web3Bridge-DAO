@@ -9,7 +9,8 @@ library Dto {
     ADMIN_OPERATOR, // This role would be able to call all the function in the admin ops facet
     CERTIFICATE_MANAGER, // This role owner would be able to deploy new certificate when a cohort graduate
     TOKEN_FACTORY,
-    PRE_CERTIFICATE_TOKEN_MANAGER // this role owner would be able to call guarded function in the precertificate token 
+    PRE_CERTIFICATE_TOKEN_MANAGER, // this role owner would be able to call guarded function in the precertificate token 
+    VAULT_MANAGER // This role owner would be able to Open the vault for share withdrawal
   }
   struct AccessControlStorage {
     mapping(address => Roles) role; // address => role
