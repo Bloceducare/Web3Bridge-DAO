@@ -19,16 +19,15 @@ contract Vault10 {
     bool withdrawTimeReached;
     uint216 amountDepositedForSharing;
     uint8 numberOfPaidUsers;
-    address owner;
+    // address owner;
     IERC20 tokenContract;
     address diamond;
     bool isInitialized;
 
     /// @param _tokenContract: this would be the address of the token that will be disbursed.
-    /// @param _owner: this is the address that would be handling the admin operations
-    constructor(address _tokenContract, address _owner) {
+
+    constructor(address _tokenContract) {
         tokenContract = IERC20(_tokenContract);
-        owner = _owner;
     }
 
     function init(address _diamond) external {

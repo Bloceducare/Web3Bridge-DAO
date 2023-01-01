@@ -15,7 +15,6 @@ contract Vault5 {
     bool withdrawTimeReached;
     uint216 amountDepositedForSharing;
     uint8 numberOfPaidUsers;
-    address admin;
     IERC20 tokenContract;
     address diamond;
     bool isInitialized;
@@ -25,10 +24,8 @@ contract Vault5 {
     error notAdmin(string);
 
     /// @param _tokenContract: this would be the address of the token that will be disbursed.
-    /// @param _admin: this is the address that would be handling the admin operations
-    constructor (address _tokenContract, address _admin ) {
+    constructor (address _tokenContract ) {
         tokenContract = IERC20(_tokenContract);
-        admin = _admin;
     }
 
     function init(address _diamond) external {
