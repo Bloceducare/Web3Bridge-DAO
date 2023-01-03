@@ -19,7 +19,6 @@ contract Vault10 {
     bool withdrawTimeReached;
     uint216 amountDepositedForSharing;
     uint8 numberOfPaidUsers;
-    // address owner;
     IERC20 tokenContract;
     address diamond;
     bool isInitialized;

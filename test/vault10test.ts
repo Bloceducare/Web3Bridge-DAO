@@ -1,23 +1,35 @@
+// @ts-nocheck
 import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { utils } from "ethers";
+import {deployDiamond, DiamondAddress} from "../scripts/deploy"
 
 import { it } from "mocha";
 
 describe("Vault10", function () {
   async function deploysVaultAndToken() {
-    const [owner, student1, student2] = await ethers.getSigners();
+    const [contractSigner, owner, student1, student2] = await ethers.getSigners();
+
+    await deployDiamond();
+
+   
+    const AccessControl = await ethers.getContractAt("AccessControl", DiamondAddress);
+    await AccessControl.connect(contractSigner).grantRole(6, owner.address);
+    const HasRole =  await AccessControl.connect(contractSigner).hasRole(6, owner.address)
+    console.log("Check to see if he truly has role", HasRole)
+
 
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
 
     const Vault10 = await ethers.getContractFactory("Vault10");
-    const vault10 = await Vault10.deploy(token.address, owner.address);
+    const vault10 = await Vault10.deploy(token.address);
+    await vault10.connect(owner).init(DiamondAddress)
 
 
-    return { owner, student1, student2,  token, vault10 };
+    return { owner, student1, student2,  token, vault10};
   }
 
 
@@ -80,6 +92,7 @@ describe("Vault10", function () {
     const {  owner, student1, student2,  token, vault10} = await loadFixture(
         deploysVaultAndToken
       );
+      
   await vault10.connect(owner).openVault()
   expect(await vault10.checkIfWithdrawTimeReached()).to.equal(true)     
 

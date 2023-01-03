@@ -3,18 +3,29 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { utils } from "ethers";
-
+import {deployDiamond, DiamondAddress} from "../scripts/deploy"
 import { it } from "mocha";
 
 describe("Vault5", function () {
   async function deploysVaultAndToken() {
-    const [admin, student1, student2] = await ethers.getSigners();
+    const [contractSigner,admin, student1, student2] = await ethers.getSigners();
+
+
+    await deployDiamond();
+
+   
+    const AccessControl = await ethers.getContractAt("AccessControl", DiamondAddress);
+    await AccessControl.connect(contractSigner).grantRole(6, admin.address);
+    const HasRole =  await AccessControl.connect(contractSigner).hasRole(6, admin.address)
+    console.log("Check to see if he truly has role", HasRole)
+
 
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
 
     const Vault5 = await ethers.getContractFactory("Vault5");
-    const vault5 = await Vault5.deploy(token.address, admin.address);
+    const vault5 = await Vault5.deploy(token.address);
+    await vault5.connect(admin).init(DiamondAddress)
 
 
     return { admin, student1, student2,  token, vault5 };

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ContractReceipt, Transaction } from "ethers";
 import { TransactionDescription, TransactionTypes } from "ethers/lib/utils";
 import { ethers } from "hardhat";
@@ -34,7 +35,7 @@ describe("PreCertificateToken", function () {
     //deploying erc20 contract
     const Token = await ethers.getContractFactory("VaultToken");
     const token = await Token.deploy("Tether", "USDT");
-
+    
     //deploying Vault5 contract
     const Vault5 = await ethers.getContractFactory("Vault5");
     const vault5 = await Vault5.deploy(token.address, owner.address);

@@ -51,7 +51,7 @@ library AcessControl {
 
   function enforceSuperUser(address _addr) internal view {
     Dto.AccessControlStorage storage ms = accessControlStorage();
-    if(_addr == ms.superuser) {
+    if(_addr != ms.superuser) {
         revert Errors.NOT_SUPERUSER();
     }
   }
