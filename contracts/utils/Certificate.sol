@@ -9,39 +9,39 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IHasPaid} from "../interfaces/IHasPaid.sol";
 import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
 
-
 contract Certificate is ERC721, ERC721URIStorage {
     bytes32 public merkle_root; // store the merkle root hash
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     mapping(address => bool) hasMinted;
-    address pre_cert_token; // used to see if a user has paid cohort fee be mint certificate to them
-    address diamond;
-    
+    address public pre_cert_token; // used to see if a user has paid cohort fee be mint certificate to them
+    address public diamond;
+    string public URI;
 
     // ======================
-    // ERROR 
+    // ERROR
     // ======================
 
     error NOT_ADMIN();
     error TRANSFER_NOT_ALLOWED();
     error BURN_NOT_SUCCESSFUL();
 
-
     constructor(
         string memory _name,
         string memory _symbol,
+        string memory _URI,
         address _pre_cerificate_token,
         address _diamond
     ) ERC721(_name, _symbol) {
         pre_cert_token = _pre_cerificate_token;
         diamond = _diamond;
+        URI = _URI;
     }
 
-    /// @notice this function would be setting the merkle root need for validation 
-    /// @dev this should be set before normal interaction 
+    /// @notice this function would be setting the merkle root need for validation
+    /// @dev this should be set before normal interaction
     function setMerkleRoot(bytes32 root) external {
-        if(IAccessControl(diamond).hasRole(Dto.Roles.CERTIFICATE_MANAGER, msg.sender)) {
+        if (IAccessControl(diamond).hasRole(Dto.Roles.CERTIFICATE_MANAGER, msg.sender)) {
             merkle_root = root;
         } else {
             revert NOT_ADMIN();
@@ -50,7 +50,7 @@ contract Certificate is ERC721, ERC721URIStorage {
 
     /// @notice this function would mint certificate to user if all conditions are met
     /// @dev this function would only mint if the address calling it is whitelisted and has not minted before and has paid the $1500
-    function mintCertificate(string memory uri, bytes32[] memory proof) public {
+    function mintCertificate(bytes32[] memory proof) public {
         require(!hasMinted[msg.sender], "Already minted certificate");
         require(IHasPaid(pre_cert_token).checkCompleted(msg.sender), "Has not paid");
 
@@ -62,7 +62,7 @@ contract Certificate is ERC721, ERC721URIStorage {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, URI);
     }
 
     //check if a user is whitelisted based on the provided proof[] and node
@@ -70,29 +70,26 @@ contract Certificate is ERC721, ERC721URIStorage {
         return MerkleProof.verify(proof, merkle_root, node);
     }
 
+    //@notice function to change the NFT certificate URI
+    //@dev can only be called by the certificate manager from the diamond
+    function changeCertificateURI(string memory _newURI) external {
+        if (IAccessControl(diamond).hasRole(Dto.Roles.CERTIFICATE_MANAGER, msg.sender)) {
+            URI = _newURI;
+        } else {
+            revert NOT_ADMIN();
+        }
+    }
+
     //function overrides
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public pure virtual override {
+    function transferFrom(address from, address to, uint256 tokenId) public pure virtual override {
         revert TRANSFER_NOT_ALLOWED();
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public pure virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public pure virtual override {
         revert TRANSFER_NOT_ALLOWED();
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
         revert TRANSFER_NOT_ALLOWED();
     }
 
