@@ -26,14 +26,14 @@ export async function deployDiamond() {
   
   // deploying vault 10
   const Vault10 = await ethers.getContractFactory("Vault10");
-  const vault10 = await Vault10.deploy(USDC_ADDRESS, contractOwner.address);
+  const vault10 = await Vault10.deploy(USDC_ADDRESS);
   await vault10.deployed();
   console.log("10% vault has been deployed: ", vault10.address);
 
 
   //deploying vault 5
   const Vault5 = await ethers.getContractFactory("Vault5");
-  const vault5 = await Vault5.deploy(USDC_ADDRESS, contractOwner.address);
+  const vault5 = await Vault5.deploy(USDC_ADDRESS);
   await vault5.deployed();
   console.log("5% vault has been deployed: ", vault5.address);
 
