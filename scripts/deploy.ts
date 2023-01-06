@@ -21,9 +21,9 @@ export async function deployDiamond() {
   const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
   const diamondCutFacet = await DiamondCutFacet.deploy();
   await diamondCutFacet.deployed();
-  console.log("DiamondCutFacet deployed:", diamondCutFacet.address);  // commenting because of test pourpose 
+  console.log("DiamondCutFacet deployed:", diamondCutFacet.address);  // commenting because of test pourpose
 
-  
+
   // deploying vault 10
   const Vault10 = await ethers.getContractFactory("Vault10");
   const vault10 = await Vault10.deploy(USDC_ADDRESS);
@@ -68,8 +68,9 @@ export async function deployDiamond() {
   console.log("Diamond deployed:", diamond.address);
 
 
-  // transferring ownership of DAOToken to the diamond 
-  await _DAOToken.setDiamondAddress(diamond.address);
+  // transferring ownership of DAOToken to the diamond
+  // await _DAOToken.setDiamondAddress(diamond.address);
+  await _DAOToken.init(diamond.address);
 
   // init preCertificate token diamond address
   await preCert.init(diamond.address);
