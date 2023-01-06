@@ -18,10 +18,10 @@ contract CertificateFactoryFacet {
 
     /// @notice this function would be handling the deployment
     /// @dev only the admin of the diamond would be able to call this function
-    function depolyCertificate(string memory name, string memory symbol) external {
+    function depolyCertificate(string memory name, string memory symbol, string memory _URL) external {
         LibDiamond.enforceIsContractOwner();
         LibDiamond.DiamondStorage storage ms = LibDiamond.diamondStorage();
-        Certificate new_certificate = new Certificate(name, symbol, ms.pre_certificate_token, address(this));
+        Certificate new_certificate = new Certificate(name, symbol, _URL, ms.pre_certificate_token, address(this));
 
         emit CertificateDeployed(name, symbol, address(new_certificate), block.timestamp);
     }
