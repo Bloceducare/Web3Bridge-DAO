@@ -31,7 +31,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
     bytes32 public merkleRoot;
     IERC20 public USDTContractAddr;
     uint256 public cohortFee;
-    address public admin;
     uint40 paymentStart;
     uint40 elapsedTime;
     uint40 additionalTime;
@@ -50,10 +49,8 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
 
     mapping(address => StudentDetails) public studentDetails;
 
-    /// @param _admin: this would be the address that would be handling admin operations
     /// @param _vault10: this is the address this would be
-    constructor(address _admin, address _vault10, address _vault5, address _vault5_dao) {
-        admin = _admin;
+    constructor(address _vault10, address _vault5, address _vault5_dao) {
         vault10 = _vault10;
         vault5_ = _vault5;
         vault5_dao = _vault5_dao;
@@ -137,14 +134,6 @@ contract PreCertificateToken is ERC20("Pre-Certificate Token", "WPC") {
         }
 
         sd.claimed = true;
-    }
-
-    function updateAdmin(address newAdmin) external {
-        assert(newAdmin != address(0));
-        if (!IAccessControl(diamond).hasRole(Dto.Roles.PRE_CERTIFICATE_TOKEN_MANAGER, msg.sender)) {
-            revert notAdmin("Not an Admin");
-        }
-        admin = newAdmin;
     }
 
     /// @dev this function would move any ERC20 token that is transfered to this address
