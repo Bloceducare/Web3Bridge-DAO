@@ -41,7 +41,7 @@ export async function deployDiamond() {
 
   // deploy pre certificate token
   const PreCert = await ethers.getContractFactory("PreCertificateToken");
-  const preCert = await PreCert.deploy(contractOwner.address, vault10.address, vault5.address, DAO_TRESURY);
+  const preCert = await PreCert.deploy(vault10.address, vault5.address, DAO_TRESURY);
   await preCert.deployed();
   preCertificateToken = preCert;
   console.log("Deployed Pre Certificate token: ", preCert.address);
