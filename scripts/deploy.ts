@@ -118,7 +118,7 @@ export async function deployDiamond() {
 
 
   const AccessControl = await ethers.getContractAt("AccessControl", diamond.address);
-  AccessControl.setUp(contractOwner.address); // this would set the superuser of the system to first signer who is also the diamond owner
+  await AccessControl.setUp(contractOwner.address); // this would set the superuser of the system to first signer who is also the diamond owner
 
 
   DiamondAddress = diamond.address;

@@ -38,12 +38,12 @@ describe("PreCertificateToken", function () {
     
     //deploying Vault5 contract
     const Vault5 = await ethers.getContractFactory("Vault5");
-    const vault5 = await Vault5.deploy(token.address, owner.address);
+    const vault5 = await Vault5.deploy(token.address);
 
     //deploying Vault10 contract
     
     const Vault10 = await ethers.getContractFactory("Vault10");
-    const vault10 = await Vault10.deploy(token.address, owner.address);
+    const vault10 = await Vault10.deploy(token.address);
 
 
     // deploying Certificate contract

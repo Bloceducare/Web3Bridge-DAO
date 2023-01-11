@@ -109,7 +109,7 @@ describe("CertificateFactoryFacet", function () {
         "CertificateFactoryFacet",
         diamond.address
       );
-      const deployer = await certificateFactory.depolyCertificate(name, symbol);
+      const deployer = await certificateFactory.depolyCertificate(name, symbol, "url");
 
       await expect(deployer).to.emit(certificateFactory, "CertificateDeployed");
     });
