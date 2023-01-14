@@ -5,12 +5,24 @@ import {IERC20} from "../interfaces/IERC20.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
+import {IAccessControl, Dto} from "../interfaces/IAccessControl.sol";
+
 
 /// @title Web3DAO-Token Implmentartion Contract
 /// @notice this contract will be called anytime a session is started and last thoroughout the duration of that session.
 /// @author team Web3Bridge  💯
 
 contract DAOtoken is IERC20 {
+
+    // ===========================
+    // CUSTOM ERROR
+    // ===========================
+    // error notAdmin(string);
+    // error notCompleted(string);
+    error NOT_DAIMOND();
+    error ALREADY_INITIALIZIED();
+
+
     /**
      * ===================================================
      * ----------------- STATE VARIBLE -------------------
@@ -34,7 +46,9 @@ contract DAOtoken is IERC20 {
 
     bool private _enableMinting;
 
-    bytes32 public merkle_root; 
+    bytes32 public merkle_root;
+
+    bool isInitialized;
 
     /**
      * ===================================================
@@ -43,14 +57,15 @@ contract DAOtoken is IERC20 {
      */
 
     modifier onlyOwner() {
-        require(msg.sender == _owner, "not owner");
+        // require(msg.sender == _owner, "not owner");
+        require(IAccessControl(_diamond).hasRole(Dto.Roles.DAO_TOKEN_MANAGER, msg.sender), "not owner");
         _;
     }
 
-    modifier onlyDiamond() {
-        require(msg.sender == _diamond, "not owner");
-        _;
-    }
+    // modifier onlyDiamond() {
+    //     require(msg.sender == _diamond, "not owner");
+    //     _;
+    // }
 
     /**
      * ===================================================
@@ -58,9 +73,9 @@ contract DAOtoken is IERC20 {
      * ===================================================
      */
 
-    constructor() {
-        _owner = msg.sender;
-    }
+    // constructor() {
+    //     _owner = msg.sender;
+    // }
 
     function name() public view returns (string memory) {
         return _name;
@@ -80,6 +95,23 @@ contract DAOtoken is IERC20 {
 
     function balanceOf(address account) public view override returns (uint256) {
         return _balances[account];
+    }
+
+    /// @notice this function is the function used to set the diamond address
+    /// @dev this would update the diamond state variable
+    // function setDiamondAddress(address _addr) external onlyOwner {
+    //     _diamond = _addr;
+    // }
+
+    function init(address _addr) external {
+        if(isInitialized) {
+            revert ALREADY_INITIALIZIED();
+        }
+        _diamond = _addr;
+        isInitialized = true;
+    }
+    function setDiamondAddress(address _addr) external onlyOwner{
+        _diamond = _addr;
     }
 
     // to change the merkleroot hash and can be called by onlyowner
@@ -110,11 +142,7 @@ contract DAOtoken is IERC20 {
         _owner = newOwner;
     }
 
-    /// @notice this function is the function used to set the diamond address
-    /// @dev this would update the diamond state variable
-    function setDiamondAddress(address _addr) external onlyOwner {
-        _diamond = _addr;
-    }
+
 
     /// @notice this fuction is used to get the state of minting
     /// this returns a bool (true or false)
