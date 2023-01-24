@@ -3,15 +3,23 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { utils } from "ethers";
+import {deployDiamond, DiamondAddress} from "../scripts/deploy"
 
 import { it } from "mocha";
 
 describe("TipsToken", function () {
   async function deploysTipsToken() {
-    const [owner, student1, student2] = await ethers.getSigners();
+    const [contractSigner,owner, student1, student2] = await ethers.getSigners();
+
+    await deployDiamond();
+
+    const AccessControl = await ethers.getContractAt("AccessControl", DiamondAddress);
+    await AccessControl.connect(contractSigner).grantRole(4, owner.address);
+    const HasRole =  await AccessControl.connect(contractSigner).hasRole(4, owner.address)
+    console.log("Check to see if he truly has role", HasRole)
 
     const Tipstoken = await ethers.getContractFactory("TipsToken");
-    const tipstoken = await Tipstoken.deploy("TipsToken", "TSP", owner.address);
+    const tipstoken = await Tipstoken.deploy("TipsToken", "TSP", DiamondAddress);
 
     return { owner, student1, student2, tipstoken};
   }
