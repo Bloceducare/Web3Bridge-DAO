@@ -17,8 +17,6 @@ contract DAOtoken is IERC20 {
     // ===========================
     // CUSTOM ERROR
     // ===========================
-    // error notAdmin(string);
-    // error notCompleted(string);
     error NOT_DAIMOND();
     error ALREADY_INITIALIZIED();
 
@@ -38,7 +36,6 @@ contract DAOtoken is IERC20 {
 
     uint256 private _mintAmountperPerson = 20;
 
-    address private _owner;
 
     address public _diamond;
 
@@ -57,15 +54,14 @@ contract DAOtoken is IERC20 {
      */
 
     modifier onlyOwner() {
-        // require(msg.sender == _owner, "not owner");
         require(IAccessControl(_diamond).hasRole(Dto.Roles.DAO_TOKEN_MANAGER, msg.sender), "not owner");
         _;
     }
 
-    // modifier onlyDiamond() {
-    //     require(msg.sender == _diamond, "not owner");
-    //     _;
-    // }
+    modifier onlyDiamond() {
+        require(msg.sender == _diamond, "not diamond");
+        _;
+    }
 
     /**
      * ===================================================
@@ -73,9 +69,6 @@ contract DAOtoken is IERC20 {
      * ===================================================
      */
 
-    // constructor() {
-    //     _owner = msg.sender;
-    // }
 
     function name() public view returns (string memory) {
         return _name;
@@ -98,11 +91,7 @@ contract DAOtoken is IERC20 {
     }
 
     /// @notice this function is the function used to set the diamond address
-    /// @dev this would update the diamond state variable
-    // function setDiamondAddress(address _addr) external onlyOwner {
-    //     _diamond = _addr;
-    // }
-
+    /// @dev this would update the diamond state variable (This functionality is not in the constructor because the daimond need the contract on deployment as does this contract)
     function init(address _addr) external {
         if(isInitialized) {
             revert ALREADY_INITIALIZIED();
@@ -110,38 +99,31 @@ contract DAOtoken is IERC20 {
         _diamond = _addr;
         isInitialized = true;
     }
+
+
+    /// @notice this function would be used for changing the diamond address should circumstance demand sure functionality 
+    /// @dev only the an address with the admin role can make this call
     function setDiamondAddress(address _addr) external onlyOwner{
         _diamond = _addr;
     }
 
-    // to change the merkleroot hash and can be called by onlyowner
+    /// @notice to change the merkleroot hash and can be called by onlyowner
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkle_root = root;
     }
 
-    //sets the amount to be minted for each members
+    /// @notice this function sets the amount of tokens to mint to doa members 
+    /// @dev this function should be accessable to only the admin
+    /// @param newamount: this is the new amount of tokens to be minted to doa members (unit is wie)
     function setMintAmountPerPerson(uint256 newamount) public onlyOwner {
         require(newamount != 0, "cant zero for students");
         _mintAmountperPerson = newamount;
     }
 
-    // return the amount to be minted to members
+    /// @notice return the amount to be minted to members
     function getMintperPerson() external view returns (uint256) {
         return _mintAmountperPerson;
     }
-
-    //gets the owner of the contracts
-    function getOwner() public view returns (address) {
-        return _owner;
-    }
-
-    /// @notice sets the owner to a new one
-    /// @dev NOTE this script must transfer ownership imedately after deployment
-    function setNewOwner(address newOwner) public onlyOwner {
-        require(newOwner != address(0), "zero address");
-        _owner = newOwner;
-    }
-
 
 
     /// @notice this fuction is used to get the state of minting
@@ -195,8 +177,7 @@ contract DAOtoken is IERC20 {
     /// @notice this function would be used to burn DAO token from a percified user address
     /// @param _voter: this is the address that the burn would happen to
     /// @param _voting_power: this is the is the amount of power(token) this user is willing use for this vote
-    function burn(address _voter, uint256 _voting_power) external {
-        /// removed onlyOwner modifier to be revisited [please use onlyDiamond instead]
+    function burn(address _voter, uint256 _voting_power) external onlyDiamond {
         _burn(_voter, _voting_power);
     }
 
